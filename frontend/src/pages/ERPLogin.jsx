@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Mail, 
@@ -17,10 +17,13 @@ import {
 import logo from '../assets/logo.png';
 
 const ERPLogin = () => {
+  const navigate = useNavigate();
+
   // Navigation between 'login' and 'forgot'
   const [view, setView] = useState('login'); // 'login' | 'forgot' | 'reset-success'
 
   // Form Fields
+  const [role, setRole] = useState('student'); // 'admin' | 'staff' | 'student'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -36,14 +39,54 @@ const ERPLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResetLoading, setIsResetLoading] = useState(false);
 
-  // Mock Success States
-  const [loginSuccess, setLoginSuccess] = useState(false);
+  // Seed default databases in localStorage
+  useEffect(() => {
+    // Seed default admin accounts
+    if (!localStorage.getItem('admin')) {
+      localStorage.setItem('admin', JSON.stringify([
+        { email: 'admin@vertex.edu', password: 'admin123', name: 'Admin Director' }
+      ]));
+    }
+    // Seed default staffs
+    if (!localStorage.getItem('staffs')) {
+      localStorage.setItem('staffs', JSON.stringify([
+        { id: 'staff-1', email: 'staff@vertex.edu', password: 'staff123', name: 'Dr. Evelyn Sterling', department: 'Computer Science & Engineering', subject: 'Computer Science' }
+      ]));
+    }
+    // Seed default students
+    if (!localStorage.getItem('students')) {
+      localStorage.setItem('students', JSON.stringify([
+        { id: 'stud-1', email: 'student@vertex.edu', password: 'student123', name: 'K. Bharath', rollNumber: 'V1202601', department: 'Computer Science & Engineering', year: '3', attendance: 82, marks: 94, remarks: 'Excellent programming skills and regular participation in tech bootcamps.' }
+      ]));
+    }
+    // Seed subjects
+    if (!localStorage.getItem('subjects')) {
+      localStorage.setItem('subjects', JSON.stringify(['Computer Science', 'Electronics', 'Robotics', 'Data Science']));
+    }
+    // Seed marks & attendance mapping
+    if (!localStorage.getItem('marks')) {
+      localStorage.setItem('marks', JSON.stringify({ 'stud-1': 94 }));
+    }
+    if (!localStorage.getItem('attendance')) {
+      localStorage.setItem('attendance', JSON.stringify({ 'stud-1': 82 }));
+    }
+  }, []);
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (currentUser) {
+      if (currentUser.role === 'admin') navigate('/admin-dashboard');
+      else if (currentUser.role === 'staff') navigate('/staff-dashboard');
+      else if (currentUser.role === 'student') navigate('/student-dashboard');
+    }
+  }, [navigate]);
 
   // Form Validation Handlers
   const validateLoginForm = () => {
     const newErrors = {};
     
-    // Email validate
+    // Email validation
     if (!email.trim()) {
       newErrors.email = 'Email Address is required';
     } else {
@@ -53,7 +96,7 @@ const ERPLogin = () => {
       }
     }
 
-    // Password validate
+    // Password validation
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
@@ -88,11 +131,45 @@ const ERPLogin = () => {
     setIsLoading(true);
     setErrors({});
 
-    // Simulate Server Authentication
+    // Simulate Server Authentication with localStorage queries
     setTimeout(() => {
+      let matchedUser = null;
+
+      if (role === 'admin') {
+        const admins = JSON.parse(localStorage.getItem('admin') || '[]');
+        matchedUser = admins.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+      } else if (role === 'staff') {
+        const staffs = JSON.parse(localStorage.getItem('staffs') || '[]');
+        matchedUser = staffs.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+      } else if (role === 'student') {
+        const students = JSON.parse(localStorage.getItem('students') || '[]');
+        matchedUser = students.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+      }
+
       setIsLoading(false);
-      setLoginSuccess(true);
-    }, 1500);
+
+      if (matchedUser) {
+        // Save session
+        const sessionUser = {
+          id: matchedUser.id || 'admin-id',
+          name: matchedUser.name,
+          email: matchedUser.email,
+          role: role,
+          department: matchedUser.department || '',
+          rollNumber: matchedUser.rollNumber || '',
+          year: matchedUser.year || '',
+          subject: matchedUser.subject || ''
+        };
+        localStorage.setItem('currentUser', JSON.stringify(sessionUser));
+        
+        // Redirect
+        if (role === 'admin') navigate('/admin-dashboard');
+        else if (role === 'staff') navigate('/staff-dashboard');
+        else if (role === 'student') navigate('/student-dashboard');
+      } else {
+        setErrors({ login: 'Invalid email, password or role selection. Please check your credentials.' });
+      }
+    }, 1200);
   };
 
   const handleForgotSubmit = (e) => {
@@ -147,7 +224,7 @@ const ERPLogin = () => {
     <div className="min-h-screen bg-slate-50 flex items-stretch font-sans">
       
       {/* LEFT SIDE: Brand & Aesthetic Display (Desktop Only) */}
-      <div className="relative hidden lg:flex lg:w-1/2 bg-primary-navy overflow-hidden flex-col justify-between p-16 select-none">
+      <div className="relative hidden lg:flex lg:w-1/2 bg-primary-navy overflow-hidden flex-col justify-between p-16 select-none text-left">
         
         {/* Floating gradient blur circles */}
         <motion.div 
@@ -177,11 +254,11 @@ const ERPLogin = () => {
               alt="Vertex Logo" 
               className="h-12 w-auto object-contain brightness-0 invert"
             />
-            <div className="flex flex-col text-left">
+            <div className="flex flex-col">
               <span className="text-2xl font-bold font-display text-white tracking-tight leading-none">
                 VERTEX
               </span>
-              <span className="text-[10px] text-slate-400 font-semibold tracking-widest uppercase">
+              <span className="text-[10px] text-slate-400 font-semibold tracking-widest uppercase mt-1">
                 College of Engineering
               </span>
             </div>
@@ -189,7 +266,7 @@ const ERPLogin = () => {
         </div>
 
         {/* Middle Section: Marketing / Welcoming message */}
-        <div className="relative z-10 my-auto text-left max-w-lg space-y-6">
+        <div className="relative z-10 my-auto max-w-lg space-y-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -232,7 +309,7 @@ const ERPLogin = () => {
         </div>
 
         {/* Bottom Section: Footer Credits */}
-        <div className="relative z-10 text-xs text-slate-500 text-left">
+        <div className="relative z-10 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} Vertex College of Engineering. Information Systems & Security.</p>
         </div>
 
@@ -266,7 +343,7 @@ const ERPLogin = () => {
           <AnimatePresence mode="wait">
             
             {/* VIEW 1: LOGIN FORM */}
-            {view === 'login' && !loginSuccess && (
+            {view === 'login' && (
               <motion.div
                 key="login-form"
                 initial={{ opacity: 0, y: 20 }}
@@ -280,11 +357,34 @@ const ERPLogin = () => {
                     Sign In
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Use your official college email address to access the ERP panel.
+                    Use your official college credentials to access the ERP panel.
                   </p>
                 </div>
 
+                {errors.login && (
+                  <div className="p-3.5 rounded-xl bg-red-50 border border-red-100 text-xs text-red-600 font-semibold leading-normal">
+                    {errors.login}
+                  </div>
+                )}
+
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  {/* Role Dropdown */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="role" className="text-xs font-bold text-slate-700 tracking-wide uppercase">
+                      Select Portal Role
+                    </label>
+                    <select
+                      id="role"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="block w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-sans bg-white focus:outline-none focus:border-secondary-blue focus:ring-4 focus:ring-blue-100/60 transition-all duration-300"
+                    >
+                      <option value="student">Student Dashboard</option>
+                      <option value="staff">Faculty / Staff Dashboard</option>
+                      <option value="admin">Administrator Dashboard</option>
+                    </select>
+                  </div>
+
                   {/* Email Input */}
                   <div className="space-y-1.5">
                     <label htmlFor="email" className="text-xs font-bold text-slate-700 tracking-wide uppercase">
@@ -299,7 +399,7 @@ const ERPLogin = () => {
                         type="text"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="e.g. student@vertex.edu"
+                        placeholder="student@vertex.edu, staff@vertex.edu"
                         className={`block w-full pl-11 pr-4 py-3 rounded-xl border text-sm font-sans bg-white focus:outline-none transition-all duration-300 ${
                           errors.email 
                             ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-100' 
@@ -308,7 +408,7 @@ const ERPLogin = () => {
                       />
                     </div>
                     {errors.email && (
-                      <p className="text-xs text-red-500 font-semibold">{errors.email}</p>
+                      <p className="text-xs text-red-500 font-semibold mt-1">{errors.email}</p>
                     )}
                   </div>
 
@@ -354,7 +454,7 @@ const ERPLogin = () => {
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="text-xs text-red-500 font-semibold">{errors.password}</p>
+                      <p className="text-xs text-red-500 font-semibold mt-1">{errors.password}</p>
                     )}
                   </div>
 
@@ -433,7 +533,7 @@ const ERPLogin = () => {
                     Reset Password
                   </h2>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Provide the official institutional email address connected to your student profile. We will forward a secure credentials recovery link.
+                    Provide the official institutional email address connected to your profile. We will forward a secure credentials recovery link.
                   </p>
                 </div>
 
@@ -452,7 +552,7 @@ const ERPLogin = () => {
                         type="text"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
-                        placeholder="e.g. student@vertex.edu"
+                        placeholder="student@vertex.edu or staff@vertex.edu"
                         className={`block w-full pl-11 pr-4 py-3 rounded-xl border text-sm font-sans bg-white focus:outline-none transition-all duration-300 ${
                           errors.forgotEmail 
                             ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-100' 
@@ -461,7 +561,7 @@ const ERPLogin = () => {
                       />
                     </div>
                     {errors.forgotEmail && (
-                      <p className="text-xs text-red-500 font-semibold">{errors.forgotEmail}</p>
+                      <p className="text-xs text-red-500 font-semibold mt-1">{errors.forgotEmail}</p>
                     )}
                   </div>
 
@@ -497,14 +597,14 @@ const ERPLogin = () => {
                 className="bg-white/80 backdrop-blur-md border border-slate-200/50 p-8 sm:p-10 rounded-3xl shadow-xl text-center space-y-6"
               >
                 <div className="flex flex-col items-center space-y-3">
-                  <div className="p-3.5 bg-green-50 text-green-500 rounded-full">
+                  <div className="p-3.5 bg-emerald-50 text-emerald-500 rounded-full">
                     <CheckCircle className="h-10 w-10" />
                   </div>
                   <h3 className="text-xl font-extrabold text-primary-navy font-display">
                     Secure Token Transmitted
                   </h3>
-                  <p className="text-xs text-slate-600 leading-relaxed max-w-sm">
-                    Password reset link has been sent to your email. Please review your administrative inbox (and spam folder) to reset your database passcode.
+                  <p className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-100 p-3 rounded-xl font-semibold leading-relaxed max-w-sm">
+                    Password reset link has been sent to your email.
                   </p>
                 </div>
 
@@ -521,55 +621,6 @@ const ERPLogin = () => {
                   className="w-full py-3.5 rounded-xl text-sm font-bold text-white bg-primary-navy hover:bg-secondary-blue transition-colors cursor-pointer shadow-sm"
                 >
                   Return to Sign In
-                </button>
-              </motion.div>
-            )}
-
-            {/* MOCK LOGIN SUCCESS PAGE */}
-            {loginSuccess && (
-              <motion.div
-                key="login-success"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4 }}
-                className="bg-white/80 backdrop-blur-md border border-slate-200/50 p-8 sm:p-10 rounded-3xl shadow-xl text-center space-y-6"
-              >
-                <div className="flex flex-col items-center space-y-3">
-                  <div className="p-3.5 bg-blue-50 text-secondary-blue rounded-full">
-                    <GraduationCap className="h-10 w-10" />
-                  </div>
-                  <h3 className="text-xl font-extrabold text-primary-navy font-display">
-                    Welcome to Vertex ERP
-                  </h3>
-                  <p className="text-xs text-slate-600">
-                    Authentication verified. Academic session established.
-                  </p>
-                </div>
-
-                <div className="p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl text-left space-y-2 text-xs text-slate-600">
-                  <div className="flex justify-between border-b border-blue-100/30 pb-1.5">
-                    <span className="font-bold">Active User:</span>
-                    <span>{email}</span>
-                  </div>
-                  <div className="flex justify-between border-b border-blue-100/30 pb-1.5">
-                    <span className="font-bold">System Status:</span>
-                    <span className="text-green-600 font-semibold flex items-center"><span className="h-1.5 w-1.5 bg-green-500 rounded-full mr-1 animate-pulse" />Online</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-bold">Device Remembered:</span>
-                    <span>{rememberMe ? 'Yes' : 'No'}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setLoginSuccess(false);
-                    setEmail('');
-                    setPassword('');
-                  }}
-                  className="w-full py-3.5 rounded-xl text-sm font-bold text-white bg-primary-navy hover:bg-secondary-blue transition-colors cursor-pointer shadow-sm"
-                >
-                  Log Out of Session
                 </button>
               </motion.div>
             )}

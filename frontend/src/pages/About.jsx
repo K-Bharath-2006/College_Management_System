@@ -1,15 +1,10 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Compass, 
   Target, 
-  Map, 
   BookOpen, 
   Briefcase, 
   Cpu, 
-  Award, 
-  Users, 
-  Calendar,
   Building,
   GraduationCap,
   Globe

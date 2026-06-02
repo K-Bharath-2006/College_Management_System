@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Facebook, 
@@ -7,18 +6,12 @@ import {
   Linkedin, 
   Mail, 
   Phone, 
-  MapPin, 
-  ExternalLink,
-  GraduationCap
+  MapPin 
 } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 const Footer = () => {
   const navigate = useNavigate();
-
-  const handleLinkClick = (path) => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const handleHashLinkClick = (id) => {
     if (window.location.pathname !== '/') {

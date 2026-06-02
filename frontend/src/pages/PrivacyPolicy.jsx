@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Shield, 
@@ -9,7 +8,6 @@ import {
   HelpCircle,
   Clock
 } from 'lucide-react';
-import SectionTitle from '../components/SectionTitle';
 
 const PrivacyPolicy = () => {
   const sections = [
