@@ -19,8 +19,8 @@ const Footer = () => {
     { name: 'Home', action: () => navigate('/') },
     { name: 'About Us', action: () => navigate('/about') },
     { name: 'Departments', action: () => navigate('/departments') },
-    { name: 'Faculty', action: () => navigate('/faculty') },
     { name: 'Hostel', action: () => navigate('/hostel') },
+    { name: 'Career Development', action: () => navigate('/career-development') },
   ];
 
   const resourcesLinks = [
@@ -39,11 +39,13 @@ const Footer = () => {
         {/* Brand Column */}
         <div className="space-y-4 lg:col-span-3 text-left">
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center space-x-3 group">
-            <img 
-              src={logo} 
-              alt="Vertex Logo" 
-              className="h-10 w-auto object-contain brightness-0 invert" 
-            />
+            <div className="h-11 w-11 flex items-center justify-center bg-white rounded-xl shadow border border-slate-200/20 overflow-hidden p-0.5 shrink-0">
+              <img
+                src={logo}
+                alt="Vertex Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
             <div className="flex flex-col text-left">
               <span className="text-xl font-bold font-display text-white tracking-tight leading-none">
                 VERTEX
@@ -154,17 +156,40 @@ const Footer = () => {
             Our Location
             <span className="absolute bottom-0 left-0 w-8 h-[2px] bg-secondary-blue rounded-full"></span>
           </h3>
-          <div className="w-full h-40 rounded-2xl overflow-hidden border border-slate-800 shadow">
-            <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15665.432657416385!2d76.9587!3d11.0186!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba859af2f973b7f%3A0x6fb8a715db150cf8!2sCoimbatore%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin" 
-              width="100%" 
-              height="100%" 
-              style={{ border: 0 }} 
-              allowFullScreen="" 
-              loading="lazy" 
+          {/* Two-finger scroll: pointer-events overlay removed on two-finger touch */}
+          <div
+            className="w-full h-40 rounded-2xl overflow-hidden border border-slate-800 shadow relative group"
+            onTouchStart={(e) => {
+              if (e.touches.length >= 2) {
+                e.currentTarget.querySelector('iframe').style.pointerEvents = 'auto';
+              }
+            }}
+            onTouchEnd={(e) => {
+              e.currentTarget.querySelector('iframe').style.pointerEvents = 'none';
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.querySelector('iframe').style.pointerEvents = 'auto';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.querySelector('iframe').style.pointerEvents = 'none';
+            }}
+          >
+            {/* Hint overlay (hidden on hover/touch) */}
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none rounded-2xl">
+              <span className="text-white text-xs font-semibold bg-black/50 px-3 py-1.5 rounded-full backdrop-blur-sm">
+                Use two fingers to scroll map
+              </span>
+            </div>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15665.432657416385!2d76.9587!3d11.0186!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba859af2f973b7f%3A0x6fb8a715db150cf8!2sCoimbatore%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              style={{ border: 0, pointerEvents: 'none' }}
+              allowFullScreen=""
+              loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Vertex Coimbatore Campus Map"
-              className="opacity-80 hover:opacity-100 transition-opacity"
+              className="opacity-80 group-hover:opacity-100 transition-opacity"
             />
           </div>
         </div>

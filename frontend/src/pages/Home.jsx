@@ -13,9 +13,7 @@ import {
   Send,
   Zap,
   Star,
-  DollarSign,
-  Plus,
-  Minus
+  DollarSign
 } from 'lucide-react';
 import SectionTitle from '../components/SectionTitle';
 import homeImg from '../assets/home.png';
@@ -29,38 +27,6 @@ const Home = () => {
     program: 'Computer Science',
     message: ''
   });
-  const [openFaqIndex, setOpenFaqIndex] = useState(null);
-
-  const faqs = [
-    {
-      q: 'How can I apply for admission?',
-      a: 'You can apply online through our admissions enquiry panel or submit the physical form directly at our campus admissions desk.'
-    },
-    {
-      q: 'What programs are offered?',
-      a: 'We offer world-class B.E./B.Tech programs in Computer Science & Engineering, Electronics & Communication, Robotics & Automation, and Data Science & Analytics.'
-    },
-    {
-      q: 'How does placement training work?',
-      a: 'We structure training into pre-placement coding courses, mock panel interviews, simulated corporate workshops, and mandatory industry internships.'
-    },
-    {
-      q: 'Is hostel accommodation available?',
-      a: 'Yes, modern on-campus hostels equipped with high-speed internet, athletic centers, and healthy dining services are available for scholars.'
-    },
-    {
-      q: 'How can students access ERP services?',
-      a: 'Upon admission, students receive @vertex.edu institutional credentials to log in directly to our secure cloud ERP portal to view marks, schedules, and attendance records.'
-    },
-    {
-      q: 'Are scholarships available?',
-      a: 'Yes, Vertex College offers academic merit scholarships, sports excellence awards, and need-based financial aid. Eligibility criteria can be obtained from our Admissions Office.'
-    },
-    {
-      q: 'How can parents track attendance and marks?',
-      a: 'Parents can view real-time stats by logging into the student ERP dashboard, and the institution issues monthly progress notifications.'
-    }
-  ];
 
   const handleInquirySubmit = (e) => {
     e.preventDefault();
@@ -626,53 +592,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 7.5 FAQ SECTION */}
-      <section id="faq" className="py-24 bg-section-bg border-t border-slate-200/40 scroll-mt-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionTitle 
-            subtitle="FAQ" 
-            title="Frequently Asked Questions" 
-            center={true} 
-          />
-
-          <div className="space-y-4 mt-12">
-            {faqs.map((faq, index) => {
-              const isOpen = openFaqIndex === index;
-              return (
-                <div 
-                  key={index} 
-                  className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden transition-all duration-300 hover:border-secondary-blue/30"
-                >
-                  <button
-                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                    className="w-full px-6 py-5 flex items-center justify-between text-left font-semibold text-primary-navy hover:text-secondary-blue transition-colors cursor-pointer"
-                  >
-                    <span className="text-base font-display">{faq.q}</span>
-                    <div className="ml-4 p-1 rounded-full bg-slate-50 text-slate-500 transition-colors">
-                      {isOpen ? (
-                        <Minus className="h-4 w-4" />
-                      ) : (
-                        <Plus className="h-4 w-4" />
-                      )}
-                    </div>
-                  </button>
-
-                  <motion.div
-                    initial={false}
-                    animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
-                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-6 pb-5 pt-2 text-sm text-slate-500 leading-relaxed font-sans border-t border-slate-100/60">
-                      {faq.a}
-                    </div>
-                  </motion.div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* 8. CONTACT SECTION (Anchor route from Navbar) */}
       <section id="contact" className="py-24 bg-white scroll-mt-20">

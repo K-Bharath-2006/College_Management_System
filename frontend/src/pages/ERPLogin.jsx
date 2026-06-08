@@ -198,11 +198,13 @@ const ERPLogin = () => {
         {/* Top Section: Logo */}
         <div className="relative z-10">
           <div className="flex items-center space-x-3 group">
-            <img 
-              src={logo} 
-              alt="Vertex Logo" 
-              className="h-12 w-auto object-contain brightness-0 invert"
-            />
+            <div className="h-12 w-12 flex items-center justify-center bg-white rounded-xl shadow-md border border-white/10 overflow-hidden p-0.5">
+              <img
+                src={logo}
+                alt="Vertex Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
             <div className="flex flex-col">
               <span className="text-2xl font-bold font-display text-white tracking-tight leading-none">
                 VERTEX

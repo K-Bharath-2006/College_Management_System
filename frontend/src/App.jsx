@@ -20,6 +20,7 @@ import COE from './pages/COE';
 import Hostel from './pages/Hostel';
 import FAQ from './pages/FAQ';
 import Leadership from './pages/Leadership';
+import CareerDevelopment from './pages/CareerDevelopment';
 
 // Reusable hook to handle scroll actions during route transitions
 const ScrollToTop = () => {
@@ -68,6 +69,7 @@ function AppContent() {
           <Route path="/hostel" element={<Hostel />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/leadership" element={<Leadership />} />
+          <Route path="/career-development" element={<CareerDevelopment />} />
           
           <Route 
             path="/admin-dashboard" 
