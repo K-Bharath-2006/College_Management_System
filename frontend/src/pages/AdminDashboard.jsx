@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -12,7 +13,8 @@ import {
   AlertCircle, 
   Settings as SettingsIcon,
   RefreshCw,
-  Info
+  Info,
+  Loader2
 } from 'lucide-react';
 
 import Sidebar from '../components/Sidebar';
@@ -20,12 +22,12 @@ import Topbar from '../components/Topbar';
 import DashboardCard from '../components/DashboardCard';
 import Table from '../components/Table';
 import Modal from '../components/Modal';
+import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [currentUser] = useState(() => {
-    return JSON.parse(localStorage.getItem('currentUser')) || null;
-  });
+  const { user: currentUser, logout } = useAuth();
 
   // Responsive Layout States
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -35,15 +37,10 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('Dashboard');
 
   // Database States
-  const [students, setStudents] = useState(() => {
-    return JSON.parse(localStorage.getItem('students') || '[]');
-  });
-  const [staffs, setStaffs] = useState(() => {
-    return JSON.parse(localStorage.getItem('staffs') || '[]');
-  });
-  const [subjects] = useState(() => {
-    return JSON.parse(localStorage.getItem('subjects') || '[]');
-  });
+  const [students, setStudents] = useState([]);
+  const [staffs, setStaffs] = useState([]);
+  const [isStudentsLoading, setIsStudentsLoading] = useState(false);
+  const [isStaffsLoading, setIsStaffsLoading] = useState(false);
 
   // Search filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,28 +63,78 @@ const AdminDashboard = () => {
     rollNumber: '',
     department: 'Computer Science & Engineering',
     year: '1',
+    phone: '',
     password: ''
   });
 
   const [staffForm, setStaffForm] = useState({
     name: '',
     email: '',
+    employeeId: '',
     department: 'Computer Science & Engineering',
-    subject: 'Computer Science',
+    designation: 'Professor',
+    phone: '',
     password: ''
   });
 
   const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load user session check
-  useEffect(() => {
-    if (!currentUser || currentUser.role !== 'admin') {
-      navigate('/erp-login');
+  // Fetch Students & Staffs
+  const fetchStudents = async () => {
+    setIsStudentsLoading(true);
+    try {
+      const response = await api.get('/admin/students');
+      const mapped = response.data.data.map(s => ({
+        id: s._id,
+        userId: s.userId?._id,
+        name: s.userId?.name || '',
+        email: s.userId?.email || '',
+        rollNumber: s.rollNumber,
+        department: s.department,
+        year: s.year,
+        phone: s.phone,
+        attendance: s.attendance || 0,
+        marks: s.marks || 0,
+        remarks: s.remarks || '',
+      }));
+      setStudents(mapped);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    } finally {
+      setIsStudentsLoading(false);
     }
-  }, [currentUser, navigate]);
+  };
+
+  const fetchStaffs = async () => {
+    setIsStaffsLoading(true);
+    try {
+      const response = await api.get('/admin/staffs');
+      const mapped = response.data.data.map(s => ({
+        id: s._id,
+        userId: s.userId?._id,
+        name: s.userId?.name || '',
+        email: s.userId?.email || '',
+        employeeId: s.employeeId,
+        department: s.department,
+        designation: s.designation,
+        phone: s.phone,
+      }));
+      setStaffs(mapped);
+    } catch (error) {
+      console.error('Error fetching staffs:', error);
+    } finally {
+      setIsStaffsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+    fetchStaffs();
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
+    logout();
     navigate('/erp-login');
   };
 
@@ -112,6 +159,7 @@ const AdminDashboard = () => {
       rollNumber: '',
       department: 'Computer Science & Engineering',
       year: '1',
+      phone: '',
       password: ''
     });
     setFormError('');
@@ -126,68 +174,45 @@ const AdminDashboard = () => {
       rollNumber: student.rollNumber,
       department: student.department,
       year: student.year,
-      password: student.password
+      phone: student.phone,
+      password: '' // Keep password empty unless changing
     });
     setFormError('');
     setIsStudentModalOpen(true);
   };
 
-  const handleStudentSubmit = (e) => {
+  const handleStudentSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+    setIsSubmitting(true);
 
     // Validations
-    if (!studentForm.name.trim() || !studentForm.email.trim() || !studentForm.rollNumber.trim() || !studentForm.password) {
-      setFormError('All fields are required.');
+    if (!studentForm.name.trim() || !studentForm.email.trim() || !studentForm.rollNumber.trim() || !studentForm.phone.trim() || (!selectedStudent && !studentForm.password)) {
+      setFormError('All fields (including password for new students) are required.');
+      setIsSubmitting(false);
       return;
     }
 
-    let updatedStudents = [...students];
-
-    if (selectedStudent) {
-      // Edit mode
-      // Check for roll number duplicates excluding current student
-      const duplicate = students.find(s => s.rollNumber.toLowerCase() === studentForm.rollNumber.toLowerCase() && s.id !== selectedStudent.id);
-      if (duplicate) {
-        setFormError('Roll number already exists.');
-        return;
+    try {
+      if (selectedStudent) {
+        // Edit mode
+        const payload = { ...studentForm };
+        if (!payload.password) delete payload.password; // Don't send empty password
+        
+        await api.put(`/admin/students/${selectedStudent.id}`, payload);
+      } else {
+        // Add mode
+        await api.post('/admin/students', studentForm);
       }
-
-      updatedStudents = students.map(s => s.id === selectedStudent.id ? {
-        ...s,
-        name: studentForm.name,
-        email: studentForm.email,
-        rollNumber: studentForm.rollNumber,
-        department: studentForm.department,
-        year: studentForm.year,
-        password: studentForm.password
-      } : s);
-    } else {
-      // Add mode
-      const duplicate = students.find(s => s.rollNumber.toLowerCase() === studentForm.rollNumber.toLowerCase());
-      if (duplicate) {
-        setFormError('Roll number already exists.');
-        return;
-      }
-
-      const newStudent = {
-        id: `stud-${Date.now()}`,
-        name: studentForm.name,
-        email: studentForm.email,
-        rollNumber: studentForm.rollNumber,
-        department: studentForm.department,
-        year: studentForm.year,
-        password: studentForm.password,
-        attendance: 0,
-        marks: 0,
-        remarks: ''
-      };
-      updatedStudents.push(newStudent);
+      await fetchStudents();
+      setIsStudentModalOpen(false);
+    } catch (error) {
+      console.error('Student save error:', error);
+      const serverMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Error saving student record';
+      setFormError(serverMsg);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
-    setStudents(updatedStudents);
-    setIsStudentModalOpen(false);
   };
 
   // Staff CRUD operations
@@ -196,8 +221,10 @@ const AdminDashboard = () => {
     setStaffForm({
       name: '',
       email: '',
+      employeeId: '',
       department: 'Computer Science & Engineering',
-      subject: 'Computer Science',
+      designation: 'Professor',
+      phone: '',
       password: ''
     });
     setFormError('');
@@ -209,52 +236,48 @@ const AdminDashboard = () => {
     setStaffForm({
       name: staff.name,
       email: staff.email,
+      employeeId: staff.employeeId,
       department: staff.department,
-      subject: staff.subject || 'Computer Science',
-      password: staff.password
+      designation: staff.designation,
+      phone: staff.phone,
+      password: '' // Keep empty unless changing
     });
     setFormError('');
     setIsStaffModalOpen(true);
   };
 
-  const handleStaffSubmit = (e) => {
+  const handleStaffSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+    setIsSubmitting(true);
 
     // Validations
-    if (!staffForm.name.trim() || !staffForm.email.trim() || !staffForm.password) {
-      setFormError('All fields are required.');
+    if (!staffForm.name.trim() || !staffForm.email.trim() || !staffForm.employeeId.trim() || !staffForm.phone.trim() || (!selectedStaff && !staffForm.password)) {
+      setFormError('All fields (including password for new staff) are required.');
+      setIsSubmitting(false);
       return;
     }
 
-    let updatedStaffs = [...staffs];
-
-    if (selectedStaff) {
-      // Edit
-      updatedStaffs = staffs.map(s => s.id === selectedStaff.id ? {
-        ...s,
-        name: staffForm.name,
-        email: staffForm.email,
-        department: staffForm.department,
-        subject: staffForm.subject,
-        password: staffForm.password
-      } : s);
-    } else {
-      // Add
-      const newStaff = {
-        id: `staff-${Date.now()}`,
-        name: staffForm.name,
-        email: staffForm.email,
-        department: staffForm.department,
-        subject: staffForm.subject,
-        password: staffForm.password
-      };
-      updatedStaffs.push(newStaff);
+    try {
+      if (selectedStaff) {
+        // Edit
+        const payload = { ...staffForm };
+        if (!payload.password) delete payload.password;
+        
+        await api.put(`/admin/staffs/${selectedStaff.id}`, payload);
+      } else {
+        // Add
+        await api.post('/admin/staffs', staffForm);
+      }
+      await fetchStaffs();
+      setIsStaffModalOpen(false);
+    } catch (error) {
+      console.error('Staff save error:', error);
+      const serverMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Error saving staff record';
+      setFormError(serverMsg);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    localStorage.setItem('staffs', JSON.stringify(updatedStaffs));
-    setStaffs(updatedStaffs);
-    setIsStaffModalOpen(false);
   };
 
   // Delete Actions
@@ -264,29 +287,28 @@ const AdminDashboard = () => {
     setIsDeleteConfirmOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (deleteType === 'student') {
-      const updated = students.filter(s => s.id !== deleteId);
-      localStorage.setItem('students', JSON.stringify(updated));
-      setStudents(updated);
-    } else if (deleteType === 'staff') {
-      const updated = staffs.filter(s => s.id !== deleteId);
-      localStorage.setItem('staffs', JSON.stringify(updated));
-      setStaffs(updated);
+  const confirmDelete = async () => {
+    setIsSubmitting(true);
+    try {
+      if (deleteType === 'student') {
+        await api.delete(`/admin/students/${deleteId}`);
+        await fetchStudents();
+      } else if (deleteType === 'staff') {
+        await api.delete(`/admin/staffs/${deleteId}`);
+        await fetchStaffs();
+      }
+      setIsDeleteConfirmOpen(false);
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert(error.response?.data?.message || 'Failed to delete record');
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsDeleteConfirmOpen(false);
   };
 
-  // Reset Portal database to default state
+  // Reset Portal database to default state (clear session coordinates)
   const handleResetDatabase = () => {
-    localStorage.removeItem('students');
-    localStorage.removeItem('staffs');
-    localStorage.removeItem('admin');
-    localStorage.removeItem('marks');
-    localStorage.removeItem('attendance');
-    localStorage.removeItem('subjects');
-    // Clear session user & force relogin to trigger reseeding
-    localStorage.removeItem('currentUser');
+    logout();
     navigate('/erp-login');
   };
 
@@ -300,7 +322,7 @@ const AdminDashboard = () => {
   const filteredStaffs = staffs.filter(s => 
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     s.department.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    s.subject.toLowerCase().includes(searchQuery.toLowerCase())
+    s.designation.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -385,7 +407,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex flex-col justify-center">
                     <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Operational Mode</span>
-                    <span className="text-sm font-bold text-emerald-600 mt-1">Local Storage Mode</span>
+                    <span className="text-sm font-bold text-secondary-blue mt-1">REST API (MongoDB)</span>
                   </div>
                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex flex-col justify-center">
                     <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">System Clock</span>
@@ -423,14 +445,19 @@ const AdminDashboard = () => {
               </div>
 
               {/* Students Table */}
-              {filteredStudents.length > 0 ? (
-                <Table headers={['Student Name', 'Roll Number', 'Department', 'Academic Year', 'Email', 'Actions']}>
+              {isStudentsLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-secondary-blue" />
+                </div>
+              ) : filteredStudents.length > 0 ? (
+                <Table headers={['Student Name', 'Roll Number', 'Department', 'Academic Year', 'Phone', 'Email', 'Actions']}>
                   {filteredStudents.map((student) => (
                     <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="px-6 py-4 font-semibold text-primary-navy">{student.name}</td>
                       <td className="px-6 py-4 font-mono text-slate-600 text-xs font-bold">{student.rollNumber}</td>
                       <td className="px-6 py-4 text-slate-500 font-medium text-xs">{student.department}</td>
                       <td className="px-6 py-4 text-slate-600 font-semibold">Year {student.year}</td>
+                      <td className="px-6 py-4 text-slate-500 font-mono text-xs">{student.phone}</td>
                       <td className="px-6 py-4 text-slate-500 font-normal">{student.email}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-2.5">
@@ -473,7 +500,7 @@ const AdminDashboard = () => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Search staffs by Name, Dept, Subject..."
+                    placeholder="Search staffs by Name, Dept, Designation..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-secondary-blue focus:ring-4 focus:ring-blue-50/50 bg-white font-sans transition-all duration-300"
@@ -489,17 +516,23 @@ const AdminDashboard = () => {
               </div>
 
               {/* Staff Table */}
-              {filteredStaffs.length > 0 ? (
-                <Table headers={['Staff Name', 'Department', 'Assigned Subject', 'Email Address', 'Actions']}>
+              {isStaffsLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-secondary-blue" />
+                </div>
+              ) : filteredStaffs.length > 0 ? (
+                <Table headers={['Staff Name', 'Employee ID', 'Department', 'Designation', 'Phone', 'Email Address', 'Actions']}>
                   {filteredStaffs.map((staff) => (
                     <tr key={staff.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="px-6 py-4 font-semibold text-primary-navy">{staff.name}</td>
+                      <td className="px-6 py-4 font-mono text-slate-600 text-xs font-bold">{staff.employeeId}</td>
                       <td className="px-6 py-4 text-slate-500 font-medium text-xs">{staff.department}</td>
                       <td className="px-6 py-4 text-slate-700 font-semibold text-xs">
                         <span className="px-2.5 py-1 bg-slate-100 rounded-md border border-slate-200/50">
-                          {staff.subject}
+                          {staff.designation}
                         </span>
                       </td>
+                      <td className="px-6 py-4 text-slate-500 font-mono text-xs">{staff.phone}</td>
                       <td className="px-6 py-4 text-slate-500 font-normal">{staff.email}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-2.5">
@@ -554,7 +587,11 @@ const AdminDashboard = () => {
               </div>
 
               {/* Attendance Table */}
-              {filteredStudents.length > 0 ? (
+              {isStudentsLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-secondary-blue" />
+                </div>
+              ) : filteredStudents.length > 0 ? (
                 <Table headers={['Student Name', 'Roll Number', 'Department', 'Attendance Percentage', 'Status']}>
                   {filteredStudents.map((student) => {
                     const pct = Number(student.attendance) || 0;
@@ -702,16 +739,29 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Email Address</label>
-            <input
-              type="email"
-              required
-              value={studentForm.email}
-              onChange={(e) => setStudentForm({...studentForm, email: e.target.value})}
-              placeholder="student@vertex.edu"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-secondary-blue font-sans bg-white"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Email Address</label>
+              <input
+                type="email"
+                required
+                value={studentForm.email}
+                onChange={(e) => setStudentForm({...studentForm, email: e.target.value})}
+                placeholder="student@vertex.edu"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-secondary-blue font-sans bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Phone Number</label>
+              <input
+                type="tel"
+                required
+                value={studentForm.phone}
+                onChange={(e) => setStudentForm({...studentForm, phone: e.target.value})}
+                placeholder="e.g. +1 (555) 019-2834"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-secondary-blue font-sans bg-white"
+              />
+            </div>
           </div>
 
           <div>
@@ -729,10 +779,10 @@ const AdminDashboard = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Portal Password</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Portal Password {selectedStudent && '(Leave blank to keep current)'}</label>
             <input
               type="password"
-              required
+              required={!selectedStudent}
               value={studentForm.password}
               onChange={(e) => setStudentForm({...studentForm, password: e.target.value})}
               placeholder="Min 6 characters"
@@ -743,9 +793,10 @@ const AdminDashboard = () => {
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3 rounded-xl font-bold text-white bg-secondary-blue hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-xl font-bold text-white bg-secondary-blue hover:bg-blue-700 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
             >
-              {selectedStudent ? 'Save Changes' : 'Register Student'}
+              {isSubmitting ? 'Saving...' : selectedStudent ? 'Save Changes' : 'Register Student'}
             </button>
           </div>
         </form>
@@ -790,6 +841,31 @@ const AdminDashboard = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Employee ID</label>
+              <input
+                type="text"
+                required
+                value={staffForm.employeeId}
+                onChange={(e) => setStaffForm({...staffForm, employeeId: e.target.value})}
+                placeholder="e.g. EMP12026"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-secondary-blue font-sans bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Phone Number</label>
+              <input
+                type="tel"
+                required
+                value={staffForm.phone}
+                onChange={(e) => setStaffForm({...staffForm, phone: e.target.value})}
+                placeholder="e.g. +1 (555) 019-8877"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-secondary-blue font-sans bg-white"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Department</label>
               <select
                 value={staffForm.department}
@@ -803,24 +879,23 @@ const AdminDashboard = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Assigned Subject</label>
-              <select
-                value={staffForm.subject}
-                onChange={(e) => setStaffForm({...staffForm, subject: e.target.value})}
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Designation</label>
+              <input
+                type="text"
+                required
+                value={staffForm.designation}
+                onChange={(e) => setStaffForm({...staffForm, designation: e.target.value})}
+                placeholder="e.g. Assistant Professor"
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-secondary-blue font-sans bg-white"
-              >
-                {subjects.map((sub, idx) => (
-                  <option key={idx} value={sub}>{sub}</option>
-                ))}
-              </select>
+              />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Portal Password</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Portal Password {selectedStaff && '(Leave blank to keep current)'}</label>
             <input
               type="password"
-              required
+              required={!selectedStaff}
               value={staffForm.password}
               onChange={(e) => setStaffForm({...staffForm, password: e.target.value})}
               placeholder="Min 6 characters"
@@ -831,9 +906,10 @@ const AdminDashboard = () => {
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3 rounded-xl font-bold text-white bg-secondary-blue hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-xl font-bold text-white bg-secondary-blue hover:bg-blue-700 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
             >
-              {selectedStaff ? 'Save Changes' : 'Register Staff'}
+              {isSubmitting ? 'Saving...' : selectedStaff ? 'Save Changes' : 'Register Staff'}
             </button>
           </div>
         </form>

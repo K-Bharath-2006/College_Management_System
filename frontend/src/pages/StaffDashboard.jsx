@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -7,7 +8,8 @@ import {
   Check, 
   TrendingUp, 
   BookOpen, 
-  Search
+  Search,
+  Loader2
 } from 'lucide-react';
 
 import Sidebar from '../components/Sidebar';
@@ -15,12 +17,12 @@ import Topbar from '../components/Topbar';
 import DashboardCard from '../components/DashboardCard';
 import Table from '../components/Table';
 import Modal from '../components/Modal';
+import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const StaffDashboard = () => {
   const navigate = useNavigate();
-  const [currentUser] = useState(() => {
-    return JSON.parse(localStorage.getItem('currentUser')) || null;
-  });
+  const { user: currentUser, logout } = useAuth();
 
   // Responsive Layout States
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -30,9 +32,8 @@ const StaffDashboard = () => {
   const [activeTab, setActiveTab] = useState('Dashboard');
 
   // Database States
-  const [students, setStudents] = useState(() => {
-    return JSON.parse(localStorage.getItem('students') || '[]');
-  });
+  const [students, setStudents] = useState([]);
+  const [isStudentsLoading, setIsStudentsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterDepartmentOnly, setFilterDepartmentOnly] = useState(true);
 
@@ -45,16 +46,39 @@ const StaffDashboard = () => {
     remarks: ''
   });
   const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load user session check
-  useEffect(() => {
-    if (!currentUser || currentUser.role !== 'staff') {
-      navigate('/erp-login');
+  const fetchStudents = async () => {
+    setIsStudentsLoading(true);
+    try {
+      const response = await api.get('/staff/students');
+      const mapped = response.data.data.map(s => ({
+        id: s._id,
+        userId: s.userId?._id,
+        name: s.userId?.name || '',
+        email: s.userId?.email || '',
+        rollNumber: s.rollNumber,
+        department: s.department,
+        year: s.year,
+        phone: s.phone,
+        attendance: s.attendance || 0,
+        marks: s.marks || 0,
+        remarks: s.remarks || '',
+      }));
+      setStudents(mapped);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    } finally {
+      setIsStudentsLoading(false);
     }
-  }, [currentUser, navigate]);
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
+    logout();
     navigate('/erp-login');
   };
 
@@ -103,9 +127,10 @@ const StaffDashboard = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+    setIsSubmitting(true);
 
     const marksNum = Number(editForm.marks);
     const attNum = Number(editForm.attendance);
@@ -113,39 +138,30 @@ const StaffDashboard = () => {
     // Validations
     if (isNaN(marksNum) || marksNum < 0 || marksNum > 100) {
       setFormError('Marks score must be a number between 0 and 100.');
+      setIsSubmitting(false);
       return;
     }
 
     if (isNaN(attNum) || attNum < 0 || attNum > 100) {
       setFormError('Attendance percentage must be a number between 0 and 100.');
+      setIsSubmitting(false);
       return;
     }
 
-    // Save student records back to localStorage
-    const updatedStudents = students.map(s => {
-      if (s.id === selectedStudent.id) {
-        return {
-          ...s,
-          marks: marksNum,
-          attendance: attNum,
-          remarks: editForm.remarks
-        };
-      }
-      return s;
-    });
-
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
-    setStudents(updatedStudents);
-
-    // Also update overall marks & attendance key caches to maintain integrity
-    const marksCache = JSON.parse(localStorage.getItem('marks') || '{}');
-    const attCache = JSON.parse(localStorage.getItem('attendance') || '{}');
-    marksCache[selectedStudent.id] = marksNum;
-    attCache[selectedStudent.id] = attNum;
-    localStorage.setItem('marks', JSON.stringify(marksCache));
-    localStorage.setItem('attendance', JSON.stringify(attCache));
-
-    setIsEditModalOpen(false);
+    try {
+      await api.put(`/staff/students/${selectedStudent.id}`, {
+        marks: marksNum,
+        attendance: attNum,
+        remarks: editForm.remarks
+      });
+      await fetchStudents();
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Error updating metrics:', error);
+      setFormError(error.response?.data?.message || 'Failed to update student metrics.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -257,7 +273,11 @@ const StaffDashboard = () => {
               </div>
 
               {/* Student Table */}
-              {filteredStudents.length > 0 ? (
+              {isStudentsLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-secondary-blue" />
+                </div>
+              ) : filteredStudents.length > 0 ? (
                 <Table headers={['Student Name', 'Roll Number', 'Department', 'Attendance', 'Marks Score', 'Remarks / Comments', 'Actions']}>
                   {filteredStudents.map((student) => {
                     const att = Number(student.attendance) || 0;
@@ -329,7 +349,11 @@ const StaffDashboard = () => {
                 <p className="text-xs text-slate-500">Quickly audit exam scores for students enrolled in your course programs.</p>
               </div>
 
-              {filteredStudents.length > 0 ? (
+              {isStudentsLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-secondary-blue" />
+                </div>
+              ) : filteredStudents.length > 0 ? (
                 <Table headers={['Student Name', 'Roll Number', 'Marks Score', 'Performance Scale', 'Actions']}>
                   {filteredStudents.map((student) => {
                     const marks = Number(student.marks) || 0;
@@ -384,7 +408,11 @@ const StaffDashboard = () => {
                 <p className="text-xs text-slate-500">Record and review student attendance averages to satisfy university requirements (minimum 75%).</p>
               </div>
 
-              {filteredStudents.length > 0 ? (
+              {isStudentsLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-secondary-blue" />
+                </div>
+              ) : filteredStudents.length > 0 ? (
                 <Table headers={['Student Name', 'Roll Number', 'Attendance Percentage', 'Status Level', 'Actions']}>
                   {filteredStudents.map((student) => {
                     const att = Number(student.attendance) || 0;
@@ -501,17 +529,23 @@ const StaffDashboard = () => {
           <div className="pt-2 flex items-center justify-end space-x-3">
             <button
               type="button"
+              disabled={isSubmitting}
               onClick={() => setIsEditModalOpen(false)}
-              className="px-4.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-500 hover:bg-slate-50 cursor-pointer"
+              className="px-4.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-500 hover:bg-slate-50 cursor-pointer disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-secondary-blue hover:bg-blue-700 shadow-sm cursor-pointer"
+              disabled={isSubmitting}
+              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-secondary-blue hover:bg-blue-700 shadow-sm cursor-pointer disabled:opacity-50"
             >
-              <Check className="h-4 w-4" />
-              <span>Save Record Changes</span>
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
+              <span>{isSubmitting ? 'Saving Changes...' : 'Save Record Changes'}</span>
             </button>
           </div>
         </form>

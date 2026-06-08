@@ -13,46 +13,38 @@ import logo from '../assets/logo.png';
 const Footer = () => {
   const navigate = useNavigate();
 
-  const handleHashLinkClick = (id) => {
-    if (window.location.pathname !== '/') {
-      navigate('/' + id);
-    } else {
-      const element = document.getElementById(id.replace('#', ''));
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-  };
+
 
   const quickLinks = [
     { name: 'Home', action: () => navigate('/') },
     { name: 'About Us', action: () => navigate('/about') },
-    { name: 'Admissions', action: () => handleHashLinkClick('#admissions') },
-    { name: 'Academics', action: () => handleHashLinkClick('#academics') },
-    { name: 'Privacy Policy', action: () => navigate('/privacy') },
+    { name: 'Departments', action: () => navigate('/departments') },
+    { name: 'Faculty', action: () => navigate('/faculty') },
+    { name: 'Hostel', action: () => navigate('/hostel') },
   ];
 
   const resourcesLinks = [
+    { name: 'FAQ Center', action: () => navigate('/faq') },
+    { name: 'COE Cell', action: () => navigate('/coe') },
+    { name: 'Leadership', action: () => navigate('/leadership') },
+    { name: 'Privacy Policy', action: () => navigate('/privacy') },
+    { name: 'Terms of Use', action: () => navigate('/terms') },
     { name: 'ERP Portal', action: () => navigate('/erp-login') },
-    { name: 'Library & E-Resources', href: '#library' },
-    { name: 'Career Development', action: () => handleHashLinkClick('#careers') },
-    { name: 'Research Lab', href: '#research' },
-    { name: 'Campus Safety', href: '#safety' },
   ];
 
   return (
     <footer className="bg-primary-navy text-slate-300 pt-16 pb-8 border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-12">
         
         {/* Brand Column */}
-        <div className="space-y-4">
+        <div className="space-y-4 lg:col-span-3 text-left">
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center space-x-3 group">
             <img 
               src={logo} 
               alt="Vertex Logo" 
               className="h-10 w-auto object-contain brightness-0 invert" 
             />
-            <div className="flex flex-col">
+            <div className="flex flex-col text-left">
               <span className="text-xl font-bold font-display text-white tracking-tight leading-none">
                 VERTEX
               </span>
@@ -81,9 +73,9 @@ const Footer = () => {
         </div>
 
         {/* Quick Links Column */}
-        <div>
+        <div className="lg:col-span-2 text-left">
           <h3 className="text-white font-semibold text-base mb-6 font-display uppercase tracking-wider relative inline-block">
-            Quick Navigation
+            Quick Nav
             <span className="absolute bottom-0 left-0 w-8 h-[2px] bg-secondary-blue rounded-full"></span>
           </h3>
           <ul className="space-y-3.5">
@@ -94,7 +86,7 @@ const Footer = () => {
                     link.action();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer flex items-center group"
+                  className="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer flex items-center group cursor-pointer"
                 >
                   <span className="mr-1.5 transform scale-0 group-hover:scale-100 transition-all duration-200 text-secondary-blue">›</span>
                   {link.name}
@@ -105,66 +97,77 @@ const Footer = () => {
         </div>
 
         {/* Resources & Support */}
-        <div>
+        <div className="lg:col-span-2 text-left">
           <h3 className="text-white font-semibold text-base mb-6 font-display uppercase tracking-wider relative inline-block">
-            Resources & Support
+            Resources
             <span className="absolute bottom-0 left-0 w-8 h-[2px] bg-secondary-blue rounded-full"></span>
           </h3>
           <ul className="space-y-3.5">
             {resourcesLinks.map((link) => (
               <li key={link.name}>
-                {link.action ? (
-                  <button
-                    onClick={() => {
-                      link.action();
-                    }}
-                    className="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer flex items-center group"
-                  >
-                    <span className="mr-1.5 transform scale-0 group-hover:scale-100 transition-all duration-200 text-secondary-blue">›</span>
-                    {link.name}
-                  </button>
-                ) : (
-                  <a
-                    href={link.href}
-                    className="text-sm text-slate-400 hover:text-white transition-colors duration-200 flex items-center group"
-                  >
-                    <span className="mr-1.5 transform scale-0 group-hover:scale-100 transition-all duration-200 text-secondary-blue">›</span>
-                    {link.name}
-                  </a>
-                )}
+                <button
+                  onClick={() => {
+                    link.action();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer flex items-center group cursor-pointer"
+                >
+                  <span className="mr-1.5 transform scale-0 group-hover:scale-100 transition-all duration-200 text-secondary-blue">›</span>
+                  {link.name}
+                </button>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Contact Info Column */}
-        <div>
+        <div className="lg:col-span-2 text-left">
           <h3 className="text-white font-semibold text-base mb-6 font-display uppercase tracking-wider relative inline-block">
-            Get in Touch
+            Contact Us
             <span className="absolute bottom-0 left-0 w-8 h-[2px] bg-secondary-blue rounded-full"></span>
           </h3>
           <ul className="space-y-4">
             <li className="flex items-start space-x-3.5">
               <MapPin className="h-5 w-5 text-secondary-blue shrink-0 mt-0.5" />
               <span className="text-sm text-slate-400 leading-relaxed">
-                100 Innovation Boulevard, Tech District, Silicon Valley, CA 94025
+                100 Innovation Avenue, Technology Park, Coimbatore, Tamil Nadu, India
               </span>
             </li>
             <li className="flex items-center space-x-3.5">
               <Phone className="h-5 w-5 text-secondary-blue shrink-0" />
-              <a href="tel:+18005558378" className="text-sm text-slate-400 hover:text-white transition-colors">
-                +1 (800) 555-VERT
+              <a href="tel:+919876543210" className="text-sm text-slate-400 hover:text-white transition-colors">
+                +91 98765 43210
               </a>
             </li>
             <li className="flex items-center space-x-3.5">
               <Mail className="h-5 w-5 text-secondary-blue shrink-0" />
-              <a href="mailto:admissions@vertex.edu" className="text-sm text-slate-400 hover:text-white transition-colors">
-                admissions@vertex.edu
+              <a href="mailto:info@vertexcollege.edu" className="text-sm text-slate-400 hover:text-white transition-colors">
+                info@vertexcollege.edu
               </a>
             </li>
           </ul>
         </div>
 
+        {/* Google Map Column */}
+        <div className="lg:col-span-3 text-left">
+          <h3 className="text-white font-semibold text-base mb-6 font-display uppercase tracking-wider relative inline-block">
+            Our Location
+            <span className="absolute bottom-0 left-0 w-8 h-[2px] bg-secondary-blue rounded-full"></span>
+          </h3>
+          <div className="w-full h-40 rounded-2xl overflow-hidden border border-slate-800 shadow">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15665.432657416385!2d76.9587!3d11.0186!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba859af2f973b7f%3A0x6fb8a715db150cf8!2sCoimbatore%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 0 }} 
+              allowFullScreen="" 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Vertex Coimbatore Campus Map"
+              className="opacity-80 hover:opacity-100 transition-opacity"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Footer Bottom */}

@@ -100,9 +100,12 @@ const Home = () => {
 
   const statistics = [
     { value: '10,000+', label: 'Active Students', icon: Users },
+    { value: '500+', label: 'Expert Faculty', icon: BookOpen },
+    { value: '10', label: 'Departments', icon: Cpu },
+    { value: '150+', label: 'Global Recruiters', icon: Briefcase },
     { value: '95%', label: 'Placement Rate', icon: TrendingUp },
-    { value: '50+', label: 'Global Recruiters', icon: Briefcase },
-    { value: '100+', label: 'Experienced Faculty', icon: BookOpen }
+    { value: '1,200+', label: 'Research Papers', icon: Award },
+    { value: '2,100+', label: 'Hostel Capacity', icon: Star }
   ];
 
   const recruiters = [
@@ -300,7 +303,7 @@ const Home = () => {
       {/* 3. STATISTICS SECTION */}
       <section className="py-20 bg-section-bg border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-6">
             {statistics.map((stat, index) => {
               const Icon = stat.icon;
               return (

@@ -3,12 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, role, logout } = useAuth();
 
   // Watch for scrolling to apply glassmorphism effect
   useEffect(() => {
@@ -34,10 +36,10 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Home', path: '/', isHash: false },
     { name: 'About', path: '/about', isHash: false },
-    { name: 'Academics', path: '/#academics', isHash: true },
-    { name: 'Career Development', path: '/#careers', isHash: true },
-    { name: 'Admissions', path: '/#admissions', isHash: true },
-    { name: 'Contact', path: '/#contact', isHash: true },
+    { name: 'Departments', path: '/departments', isHash: false },
+    { name: 'Faculty', path: '/faculty', isHash: false },
+    { name: 'Hostel', path: '/hostel', isHash: false },
+    { name: 'FAQ', path: '/faq', isHash: false },
   ];
 
   const handleNavClick = (link) => {
@@ -124,16 +126,37 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Portal Login (Desktop) */}
-            <div className="hidden lg:block">
-              <Link 
-                to="/erp-login" 
-                className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-secondary-blue to-primary-navy hover:from-blue-600 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 hover:scale-105 cursor-pointer"
-              >
-                <GraduationCap className="h-5 w-5" />
-                <span>ERP Portal</span>
-              </Link>
-            </div>
+            {/* Portal Login / Session State (Desktop) */}
+            {user ? (
+              <div className="hidden lg:flex items-center space-x-6">
+                <Link
+                  to={`/${role}-dashboard`}
+                  className="flex flex-col items-end hover:opacity-85 transition-opacity"
+                >
+                  <span className="text-sm font-bold text-primary-navy">{user.name}</span>
+                  <span className="text-[10px] font-bold text-secondary-blue uppercase tracking-wider">{role}</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    logout();
+                    navigate('/erp-login');
+                  }}
+                  className="px-5 py-2 rounded-full text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow cursor-pointer"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="hidden lg:block">
+                <Link 
+                  to="/erp-login" 
+                  className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-secondary-blue to-primary-navy hover:from-blue-600 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 hover:scale-105 cursor-pointer"
+                >
+                  <GraduationCap className="h-5 w-5" />
+                  <span>ERP Portal</span>
+                </Link>
+              </div>
+            )}
 
             {/* Hamburger Button (Mobile) */}
             <div className="lg:hidden flex items-center">
@@ -174,16 +197,45 @@ const Navbar = () => {
                     {link.name}
                   </button>
                 ))}
-                <div className="pt-4 px-4">
-                  <Link
-                    to="/erp-login"
-                    onClick={() => setIsOpen(false)}
-                    className="flex justify-center items-center space-x-2 w-full px-5 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-secondary-blue to-primary-navy hover:from-blue-600 hover:to-indigo-800 transition-all duration-300 text-center shadow-md hover:shadow-lg active:scale-98 cursor-pointer"
-                  >
-                    <GraduationCap className="h-5 w-5" />
-                    <span>ERP Portal</span>
-                  </Link>
-                </div>
+                
+                {user ? (
+                  <div className="pt-4 px-4 border-t border-slate-100 mt-4 space-y-3 text-left">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-primary-navy">{user.name}</span>
+                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-0.5">{role}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Link
+                        to={`/${role}-dashboard`}
+                        onClick={() => setIsOpen(false)}
+                        className="flex justify-center items-center px-4 py-2.5 rounded-xl text-xs font-bold text-primary-navy border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors text-center"
+                      >
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setIsOpen(false);
+                          logout();
+                          navigate('/erp-login');
+                        }}
+                        className="flex justify-center items-center px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors cursor-pointer text-center"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="pt-4 px-4">
+                    <Link
+                      to="/erp-login"
+                      onClick={() => setIsOpen(false)}
+                      className="flex justify-center items-center space-x-2 w-full px-5 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-secondary-blue to-primary-navy hover:from-blue-600 hover:to-indigo-800 transition-all duration-300 text-center shadow-md hover:shadow-lg active:scale-98 cursor-pointer"
+                    >
+                      <GraduationCap className="h-5 w-5" />
+                      <span>ERP Portal</span>
+                    </Link>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

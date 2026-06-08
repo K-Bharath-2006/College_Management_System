@@ -15,9 +15,12 @@ import {
   BookOpen
 } from 'lucide-react';
 import logo from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 
 const ERPLogin = () => {
   const navigate = useNavigate();
+  const { user, role: authRole, login } = useAuth();
 
   // Navigation between 'login' and 'forgot'
   const [view, setView] = useState('login'); // 'login' | 'forgot' | 'reset-success'
@@ -39,48 +42,14 @@ const ERPLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResetLoading, setIsResetLoading] = useState(false);
 
-  // Seed default databases in localStorage
-  useEffect(() => {
-    // Seed default admin accounts
-    if (!localStorage.getItem('admin')) {
-      localStorage.setItem('admin', JSON.stringify([
-        { email: 'admin@vertex.edu', password: 'admin123', name: 'Admin Director' }
-      ]));
-    }
-    // Seed default staffs
-    if (!localStorage.getItem('staffs')) {
-      localStorage.setItem('staffs', JSON.stringify([
-        { id: 'staff-1', email: 'staff@vertex.edu', password: 'staff123', name: 'Dr. Evelyn Sterling', department: 'Computer Science & Engineering', subject: 'Computer Science' }
-      ]));
-    }
-    // Seed default students
-    if (!localStorage.getItem('students')) {
-      localStorage.setItem('students', JSON.stringify([
-        { id: 'stud-1', email: 'student@vertex.edu', password: 'student123', name: 'K. Bharath', rollNumber: 'V1202601', department: 'Computer Science & Engineering', year: '3', attendance: 82, marks: 94, remarks: 'Excellent programming skills and regular participation in tech bootcamps.' }
-      ]));
-    }
-    // Seed subjects
-    if (!localStorage.getItem('subjects')) {
-      localStorage.setItem('subjects', JSON.stringify(['Computer Science', 'Electronics', 'Robotics', 'Data Science']));
-    }
-    // Seed marks & attendance mapping
-    if (!localStorage.getItem('marks')) {
-      localStorage.setItem('marks', JSON.stringify({ 'stud-1': 94 }));
-    }
-    if (!localStorage.getItem('attendance')) {
-      localStorage.setItem('attendance', JSON.stringify({ 'stud-1': 82 }));
-    }
-  }, []);
-
   // Redirect if user is already logged in
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (currentUser) {
-      if (currentUser.role === 'admin') navigate('/admin-dashboard');
-      else if (currentUser.role === 'staff') navigate('/staff-dashboard');
-      else if (currentUser.role === 'student') navigate('/student-dashboard');
+    if (user && authRole) {
+      if (authRole === 'admin') navigate('/admin-dashboard');
+      else if (authRole === 'staff') navigate('/staff-dashboard');
+      else if (authRole === 'student') navigate('/student-dashboard');
     }
-  }, [navigate]);
+  }, [user, authRole, navigate]);
 
   // Form Validation Handlers
   const validateLoginForm = () => {
@@ -124,66 +93,46 @@ const ERPLogin = () => {
   };
 
   // Submit Handlers
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     if (!validateLoginForm()) return;
 
     setIsLoading(true);
     setErrors({});
 
-    // Simulate Server Authentication with localStorage queries
-    setTimeout(() => {
-      let matchedUser = null;
-
-      if (role === 'admin') {
-        const admins = JSON.parse(localStorage.getItem('admin') || '[]');
-        matchedUser = admins.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-      } else if (role === 'staff') {
-        const staffs = JSON.parse(localStorage.getItem('staffs') || '[]');
-        matchedUser = staffs.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-      } else if (role === 'student') {
-        const students = JSON.parse(localStorage.getItem('students') || '[]');
-        matchedUser = students.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-      }
-
+    try {
+      const { role: userRole } = await login(email, password);
+      
+      // Redirect based on role
+      if (userRole === 'admin') navigate('/admin-dashboard');
+      else if (userRole === 'staff') navigate('/staff-dashboard');
+      else if (userRole === 'student') navigate('/student-dashboard');
+    } catch (error) {
+      console.error('Login error:', error);
+      const serverMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Invalid email, password or role selection. Please check your credentials.';
+      setErrors({ login: serverMsg });
+    } finally {
       setIsLoading(false);
-
-      if (matchedUser) {
-        // Save session
-        const sessionUser = {
-          id: matchedUser.id || 'admin-id',
-          name: matchedUser.name,
-          email: matchedUser.email,
-          role: role,
-          department: matchedUser.department || '',
-          rollNumber: matchedUser.rollNumber || '',
-          year: matchedUser.year || '',
-          subject: matchedUser.subject || ''
-        };
-        localStorage.setItem('currentUser', JSON.stringify(sessionUser));
-        
-        // Redirect
-        if (role === 'admin') navigate('/admin-dashboard');
-        else if (role === 'staff') navigate('/staff-dashboard');
-        else if (role === 'student') navigate('/student-dashboard');
-      } else {
-        setErrors({ login: 'Invalid email, password or role selection. Please check your credentials.' });
-      }
-    }, 1200);
+    }
   };
 
-  const handleForgotSubmit = (e) => {
+  const handleForgotSubmit = async (e) => {
     e.preventDefault();
     if (!validateForgotForm()) return;
 
     setIsResetLoading(true);
     setErrors({});
 
-    // Simulate Server Send
-    setTimeout(() => {
-      setIsResetLoading(false);
+    try {
+      await api.post('/auth/forgot-password', { email: forgotEmail });
       setView('reset-success');
-    }, 1200);
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      const serverMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Email address not found';
+      setErrors({ forgotEmail: serverMsg });
+    } finally {
+      setIsResetLoading(false);
+    }
   };
 
   // Abstract Background Circles Motion Settings

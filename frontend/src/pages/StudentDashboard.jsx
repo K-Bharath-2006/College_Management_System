@@ -9,27 +9,22 @@ import {
   CheckCircle, 
   Info,
   TrendingUp,
-  MessageSquare
+  MessageSquare,
+  Loader2
 } from 'lucide-react';
 
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import DashboardCard from '../components/DashboardCard';
 import Table from '../components/Table';
+import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-  const [currentUser] = useState(() => {
-    return JSON.parse(localStorage.getItem('currentUser')) || null;
-  });
-  
-  // Real-time record fetched from students database
-  const [studentRecord] = useState(() => {
-    const userObj = JSON.parse(localStorage.getItem('currentUser'));
-    if (!userObj) return null;
-    const studentsDb = JSON.parse(localStorage.getItem('students') || '[]');
-    return studentsDb.find(s => s.id === userObj.id || s.email.toLowerCase() === userObj.email.toLowerCase()) || userObj;
-  });
+  const { user: currentUser, logout } = useAuth();
+  const [studentRecord, setStudentRecord] = useState(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
 
   // Responsive Layout States
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -38,15 +33,39 @@ const StudentDashboard = () => {
   // Active Menu Tab
   const [activeTab, setActiveTab] = useState('Dashboard');
 
-  // Load user session check
   useEffect(() => {
-    if (!currentUser || currentUser.role !== 'student') {
-      navigate('/erp-login');
-    }
-  }, [currentUser, navigate]);
+    const fetchProfile = async () => {
+      setIsProfileLoading(true);
+      try {
+        const response = await api.get('/student/profile');
+        if (response.data && response.data.success) {
+          const s = response.data.data;
+          setStudentRecord({
+            id: s._id,
+            userId: s.userId?._id,
+            name: s.userId?.name || '',
+            email: s.userId?.email || '',
+            rollNumber: s.rollNumber,
+            department: s.department,
+            year: s.year,
+            phone: s.phone,
+            attendance: s.attendance || 0,
+            marks: s.marks || 0,
+            remarks: s.remarks || '',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching student profile:', error);
+      } finally {
+        setIsProfileLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
+    logout();
     navigate('/erp-login');
   };
 
@@ -111,7 +130,12 @@ const StudentDashboard = () => {
 
         {/* Scrollable details */}
         <main className="flex-grow p-6 overflow-y-auto">
-          
+          {isProfileLoading ? (
+            <div className="flex h-full items-center justify-center py-20">
+              <Loader2 className="h-10 w-10 animate-spin text-secondary-blue" />
+            </div>
+          ) : (
+            <>
           {/* TAB 1: DASHBOARD OVERVIEW */}
           {activeTab === 'Dashboard' && (
             <div className="space-y-8 animate-fade-in text-left">
@@ -397,7 +421,8 @@ const StudentDashboard = () => {
               ))}
             </div>
           </div>
-
+            </>
+          )}
         </main>
       </div>
 

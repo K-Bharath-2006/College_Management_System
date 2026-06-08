@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -10,6 +10,16 @@ import ERPLogin from './pages/ERPLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import StaffDashboard from './pages/StaffDashboard';
 import StudentDashboard from './pages/StudentDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
+
+// Import newly added college information pages
+import Departments from './pages/Departments';
+import Faculty from './pages/Faculty';
+import COE from './pages/COE';
+import Hostel from './pages/Hostel';
+import FAQ from './pages/FAQ';
+import Leadership from './pages/Leadership';
 
 // Reusable hook to handle scroll actions during route transitions
 const ScrollToTop = () => {
@@ -33,23 +43,6 @@ const ScrollToTop = () => {
   return null;
 };
 
-const ProtectedRoute = ({ children, allowedRole }) => {
-  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-
-  if (!currentUser) {
-    return <Navigate to="/erp-login" replace />;
-  }
-
-  if (allowedRole && currentUser.role !== allowedRole) {
-    if (currentUser.role === 'admin') return <Navigate to="/admin-dashboard" replace />;
-    if (currentUser.role === 'staff') return <Navigate to="/staff-dashboard" replace />;
-    if (currentUser.role === 'student') return <Navigate to="/student-dashboard" replace />;
-    return <Navigate to="/" replace />;
-  }
-
-  return children;
-};
-
 function AppContent() {
   const location = useLocation();
   const isDashboard = location.pathname.endsWith('-dashboard');
@@ -69,6 +62,12 @@ function AppContent() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/erp-login" element={<ERPLogin />} />
+          <Route path="/departments" element={<Departments />} />
+          <Route path="/faculty" element={<Faculty />} />
+          <Route path="/coe" element={<COE />} />
+          <Route path="/hostel" element={<Hostel />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/leadership" element={<Leadership />} />
           
           <Route 
             path="/admin-dashboard" 
@@ -109,7 +108,9 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </Router>
   );
 }
