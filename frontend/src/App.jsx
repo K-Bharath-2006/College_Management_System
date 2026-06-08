@@ -21,6 +21,10 @@ import Hostel from './pages/Hostel';
 import FAQ from './pages/FAQ';
 import Leadership from './pages/Leadership';
 import CareerDevelopment from './pages/CareerDevelopment';
+import CampusTour from './pages/CampusTour';
+import Library from './pages/Library';
+import Sports from './pages/Sports';
+import Clubs from './pages/Clubs';
 
 // Reusable hook to handle scroll actions during route transitions
 const ScrollToTop = () => {
@@ -70,6 +74,10 @@ function AppContent() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/leadership" element={<Leadership />} />
           <Route path="/career-development" element={<CareerDevelopment />} />
+          <Route path="/campus-tour" element={<CampusTour />} />
+          <Route path="/library" element={<Library />} />
+          <Route path="/sports" element={<Sports />} />
+          <Route path="/clubs" element={<Clubs />} />
           
           <Route 
             path="/admin-dashboard" 

@@ -56,8 +56,10 @@ const Sidebar = ({ role, activeTab, setActiveTab, isCollapsed, setIsCollapsed, i
       </button>
 
       {/* Header Logo */}
-      <div className={`p-6 flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} border-b border-slate-700/50`}>
-        <img src={logo} alt="Logo" className="h-9 w-auto brightness-0 invert" />
+      <div className={`p-5 flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} border-b border-slate-700/50`}>
+        <div className="h-9 w-9 flex items-center justify-center bg-white rounded-xl shadow border border-slate-200/20 overflow-hidden p-0.5 shrink-0">
+          <img src={logo} alt="Vertex Logo" className="h-full w-full object-contain" />
+        </div>
         {!isCollapsed && (
           <div className="flex flex-col text-left">
             <span className="text-sm font-bold font-display tracking-wider">VERTEX ERP</span>

@@ -16,7 +16,13 @@ import {
   DollarSign,
   BarChart3,
   Calendar,
-  Trophy
+  Trophy,
+  MapPin,
+  Cpu,
+  Zap,
+  Rocket,
+  FlaskConical,
+  Lightbulb
 } from 'lucide-react';
 import SectionTitle from '../components/SectionTitle';
 
@@ -422,6 +428,116 @@ const CareerDevelopment = () => {
                 <p className="text-[10px] text-slate-400 mt-0.5 uppercase tracking-wide font-medium">{company.sector}</p>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* UPCOMING EVENTS */}
+      <section className="py-24 bg-gradient-to-br from-slate-50 to-blue-50/30 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionTitle
+            subtitle="Mark Your Calendar"
+            title="Upcoming Events & Opportunities"
+            center={true}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 mt-14">
+            {[
+              {
+                icon: Zap,
+                title: 'National Level Hackathon',
+                date: '15 August 2026',
+                location: 'Innovation Center',
+                desc: '48-hour coding and innovation challenge open to all engineering students. Build solutions for real-world problems with prizes worth ₹5 Lakhs.',
+                color: 'from-blue-600 to-indigo-700',
+                lightColor: 'bg-blue-50 text-blue-600',
+                tag: 'Hackathon'
+              },
+              {
+                icon: Users,
+                title: 'Industry Connect Workshop',
+                date: '22 August 2026',
+                location: 'Seminar Hall A',
+                desc: 'One-on-one interaction with leading technology experts from Google, Zoho, and Infosys. Get career guidance and live Q&A sessions.',
+                color: 'from-violet-600 to-purple-700',
+                lightColor: 'bg-violet-50 text-violet-600',
+                tag: 'Workshop'
+              },
+              {
+                icon: Rocket,
+                title: 'Placement Training Bootcamp',
+                date: '01 September 2026',
+                location: 'Career Development Cell',
+                desc: 'Intensive 3-day technical and aptitude training exclusively for final-year students. Covers DSA, system design, and mock interviews.',
+                color: 'from-emerald-600 to-teal-700',
+                lightColor: 'bg-emerald-50 text-emerald-600',
+                tag: 'Training'
+              },
+              {
+                icon: FlaskConical,
+                title: 'AI & Data Science Symposium',
+                date: '10 September 2026',
+                location: 'Research Auditorium',
+                desc: 'Research paper presentations, industry guest talks, and live AI model demonstrations by faculty and student researchers.',
+                color: 'from-amber-600 to-orange-700',
+                lightColor: 'bg-amber-50 text-amber-600',
+                tag: 'Symposium'
+              },
+              {
+                icon: Briefcase,
+                title: 'Internship Opportunity Drive',
+                date: '18 September 2026',
+                location: 'Placement Cell',
+                desc: 'Internship recruitment drive from 30+ partner organizations. Roles in software development, data analysis, design, and management.',
+                color: 'from-rose-600 to-pink-700',
+                lightColor: 'bg-rose-50 text-rose-600',
+                tag: 'Recruitment'
+              },
+            ].map((event, i) => {
+              const Icon = event.icon;
+              return (
+                <motion.div
+                  key={event.title}
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 text-left flex flex-col"
+                >
+                  {/* Card Top Banner */}
+                  <div className={`bg-gradient-to-br ${event.color} p-5 flex items-center justify-between`}>
+                    <div className="p-3 bg-white/20 backdrop-blur rounded-xl border border-white/20">
+                      <Icon className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="px-3 py-1 bg-white/20 border border-white/20 text-white text-xs font-bold rounded-full uppercase tracking-wider">
+                      {event.tag}
+                    </span>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-base font-extrabold text-primary-navy font-display mb-3 leading-tight">{event.title}</h3>
+
+                    <div className="flex flex-col gap-1.5 mb-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-3.5 w-3.5 text-secondary-blue shrink-0" />
+                        <span className="text-xs font-semibold text-slate-600">{event.date}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-3.5 w-3.5 text-secondary-blue shrink-0" />
+                        <span className="text-xs text-slate-500">{event.location}</span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-500 leading-relaxed flex-1">{event.desc}</p>
+
+                    <button className={`mt-5 w-full py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r ${event.color} hover:opacity-90 transition-opacity shadow-sm hover:shadow-md`}>
+                      Register Now →
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>

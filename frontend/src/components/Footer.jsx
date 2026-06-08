@@ -19,16 +19,17 @@ const Footer = () => {
     { name: 'Home', action: () => navigate('/') },
     { name: 'About Us', action: () => navigate('/about') },
     { name: 'Departments', action: () => navigate('/departments') },
-    { name: 'Hostel', action: () => navigate('/hostel') },
+    { name: 'Campus Tour', action: () => navigate('/campus-tour') },
     { name: 'Career Development', action: () => navigate('/career-development') },
+    { name: 'Hostel', action: () => navigate('/hostel') },
   ];
 
   const resourcesLinks = [
+    { name: 'Library', action: () => navigate('/library') },
+    { name: 'Sports', action: () => navigate('/sports') },
+    { name: 'Clubs & Activities', action: () => navigate('/clubs') },
     { name: 'FAQ Center', action: () => navigate('/faq') },
-    { name: 'COE Cell', action: () => navigate('/coe') },
-    { name: 'Leadership', action: () => navigate('/leadership') },
     { name: 'Privacy Policy', action: () => navigate('/privacy') },
-    { name: 'Terms of Use', action: () => navigate('/terms') },
     { name: 'ERP Portal', action: () => navigate('/erp-login') },
   ];
 
