@@ -55,7 +55,7 @@ const Navbar = () => {
   };
 
   const isAcademicsActive = () =>
-    location.pathname === '/departments' || location.pathname === '/hostel';
+    location.pathname === '/departments';
 
   const isCampusLifeActive = () =>
     ['/campus-tour', '/library', '/sports', '/clubs', '/hostel'].includes(location.pathname);
@@ -72,7 +72,6 @@ const Navbar = () => {
 
   const academicsSubLinks = [
     { name: 'Departments', path: '/departments', icon: BookOpen, desc: 'Explore our 10 engineering branches' },
-    { name: 'Hostel', path: '/hostel', icon: HomeIcon, desc: 'Campus accommodation & facilities' },
   ];
 
   const campusLifeSubLinks = [
