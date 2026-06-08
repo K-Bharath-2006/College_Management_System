@@ -58,7 +58,7 @@ const Navbar = () => {
     location.pathname === '/departments' || location.pathname === '/hostel';
 
   const isCampusLifeActive = () =>
-    ['/library', '/sports', '/clubs', '/hostel'].includes(location.pathname);
+    ['/campus-tour', '/library', '/sports', '/clubs', '/hostel'].includes(location.pathname);
 
   const handleNavClick = (path) => {
     if (location.pathname !== path) {
@@ -77,6 +77,7 @@ const Navbar = () => {
 
   const campusLifeSubLinks = [
     { name: 'Campus Tour', path: '/campus-tour', icon: Map, desc: 'Virtual tour of our 150-acre campus' },
+    { name: 'Hostel', path: '/hostel', icon: HomeIcon, desc: 'On-campus accommodation & facilities' },
     { name: 'Library', path: '/library', icon: Library, desc: '1 lakh+ books & 24×7 digital access' },
     { name: 'Sports', path: '/sports', icon: Trophy, desc: 'World-class sports & fitness facilities' },
     { name: 'Clubs & Activities', path: '/clubs', icon: Users, desc: '11 clubs across tech, culture & leadership' },
