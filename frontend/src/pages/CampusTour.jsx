@@ -343,7 +343,7 @@ const CampusTour = () => {
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => setAutoPlay(!autoPlay)}
+                onClick={() => { setAutoPlay(!autoPlay); document.getElementById('tour-viewer')?.scrollIntoView({ behavior: 'smooth' }); }}
                 className="inline-flex items-center gap-2 px-6 py-4 border border-white/30 text-white rounded-2xl font-semibold text-sm backdrop-blur-sm hover:bg-white/10 transition-colors"
               >
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
