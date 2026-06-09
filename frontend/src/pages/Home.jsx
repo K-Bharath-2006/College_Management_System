@@ -14,13 +14,21 @@ import {
   Send,
   Zap,
   Star,
-  DollarSign
+  DollarSign,
+  Database,
+  Globe,
+  Building,
+  Activity,
+  Shield,
+  Cog,
+  Bot
 } from 'lucide-react';
 import SectionTitle from '../components/SectionTitle';
 import homeImg from '../assets/home.png';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [academicCat, setAcademicCat] = useState('all');
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [inquiryForm, setInquiryForm] = useState({
     name: '',
@@ -86,10 +94,16 @@ const Home = () => {
   ];
 
   const academics = [
-    { dept: 'Computer Science & Engineering', code: 'CSE', desc: 'Focus on Artificial Intelligence, Software Engineering, and Cyber Security.', icon: Cpu },
-    { dept: 'Electronics & Communication', code: 'ECE', desc: 'Embedded systems, VLSI design, and next-generation telecommunication grids.', icon: Zap },
-    { dept: 'Robotics & Automation', code: 'RA', desc: 'Mechatronics design, machine vision systems, and autonomous controllers.', icon: Award },
-    { dept: 'Data Science & Analytics', code: 'DSA', desc: 'Big data processing architectures, predictive modeling, and deep learning analytics.', icon: TrendingUp }
+    { dept: 'Computer Science & Engineering', code: 'CSE', desc: 'Focus on Artificial Intelligence, Software Engineering, and Cyber Security.', icon: Cpu, cat: 'computing', color: 'from-blue-600 to-indigo-700', lightColor: 'bg-blue-50 text-blue-700' },
+    { dept: 'Artificial Intelligence & Data Science', code: 'AIDS', desc: 'Neural computing, NLP, machine vision, and deep business analytics.', icon: Database, cat: 'computing', color: 'from-violet-600 to-purple-700', lightColor: 'bg-violet-50 text-violet-700' },
+    { dept: 'Information Technology', code: 'IT', desc: 'Enterprise software development, network systems, and database administration.', icon: Globe, cat: 'computing', color: 'from-cyan-600 to-teal-700', lightColor: 'bg-cyan-50 text-cyan-700' },
+    { dept: 'Electronics & Communication Engineering', code: 'ECE', desc: 'VLSI circuit design, 5G cellular communication, and embedded IoT edge systems.', icon: Zap, cat: 'electronics', color: 'from-amber-600 to-orange-700', lightColor: 'bg-amber-50 text-amber-700' },
+    { dept: 'Electrical & Electronics Engineering', code: 'EEE', desc: 'Smart power grids, renewable energy, industrial automation, and drive design.', icon: Zap, cat: 'electronics', color: 'from-yellow-600 to-amber-700', lightColor: 'bg-yellow-50 text-yellow-700' },
+    { dept: 'Mechanical Engineering', code: 'MECH', desc: 'Precision CAD/CAM design, fluid systems, thermodynamics, and robotics.', icon: Cog, cat: 'core', color: 'from-slate-600 to-gray-800', lightColor: 'bg-slate-100 text-slate-700' },
+    { dept: 'Civil Engineering', code: 'CIVIL', desc: 'Earthquake-resistant building, smart transport planning, and water systems.', icon: Building, cat: 'core', color: 'from-emerald-600 to-green-700', lightColor: 'bg-emerald-50 text-emerald-700' },
+    { dept: 'Biomedical Engineering', code: 'BME', desc: 'Biosensors, medical imaging, neural interfaces, and telemedicine design.', icon: Activity, cat: 'core', color: 'from-rose-600 to-pink-700', lightColor: 'bg-rose-50 text-rose-700' },
+    { dept: 'Cyber Security', code: 'CY', desc: 'Ethical hacking, digital forensics, network pen-testing, and SOC monitoring.', icon: Shield, cat: 'computing', color: 'from-red-600 to-rose-700', lightColor: 'bg-red-50 text-red-700' },
+    { dept: 'Robotics & Automation', code: 'RA', desc: 'Kinematics, autonomous vehicles, machine vision, SCADA, and ROS controllers.', icon: Bot, cat: 'electronics', color: 'from-indigo-600 to-blue-800', lightColor: 'bg-indigo-50 text-indigo-700' }
   ];
 
   return (
@@ -301,7 +315,7 @@ const Home = () => {
       </section>
 
       {/* 4. ACADEMICS SECTION (Anchor route from Navbar) */}
-      <section id="academics" className="py-24 bg-white scroll-mt-20">
+      <section id="academics" className="py-24 bg-gradient-to-b from-white via-slate-50 to-white scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionTitle 
             subtitle="Academics" 
@@ -309,39 +323,89 @@ const Home = () => {
             center={true} 
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            {academics.map((academic, index) => {
-              const Icon = academic.icon;
-              return (
-                <motion.div
-                  key={academic.code}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="border border-slate-100 hover:border-secondary-blue/30 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 text-left bg-white"
-                >
-                  <div className="flex justify-between items-center mb-6">
-                    <div className="p-3 bg-blue-50 text-secondary-blue rounded-xl">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-bold px-2.5 py-1 bg-slate-100 rounded-md text-slate-500 uppercase">
-                      {academic.code}
-                    </span>
-                  </div>
-                  <h3 className="text-base font-bold text-primary-navy mb-2 font-display">
-                    {academic.dept}
-                  </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-sans mb-4">
-                    {academic.desc}
-                  </p>
-                  <a href="#syllabus" className="inline-flex items-center text-xs font-bold text-secondary-blue hover:text-primary-navy transition-colors">
-                    <span>Syllabus & Core Info</span>
-                    <ChevronRight className="h-3 w-3 ml-1" />
-                  </a>
-                </motion.div>
-              );
-            })}
+          {/* Premium Filter Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
+            {[
+              { id: 'all', label: 'All Programs' },
+              { id: 'computing', label: 'Computing & AI' },
+              { id: 'electronics', label: 'Electronics & Systems' },
+              { id: 'core', label: 'Core & Bio Tech' }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setAcademicCat(tab.id)}
+                className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer ${
+                  academicCat === tab.id
+                    ? 'bg-primary-navy text-white shadow-lg'
+                    : 'bg-white text-slate-600 hover:text-primary-navy border border-slate-200/60 hover:bg-slate-50'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Animated Department Grid */}
+          <motion.div 
+            layout
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12"
+          >
+            <AnimatePresence mode="popLayout">
+              {academics
+                .filter(a => academicCat === 'all' || a.cat === academicCat)
+                .map((academic, index) => {
+                  const Icon = academic.icon;
+                  return (
+                    <motion.div
+                      key={academic.code}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ y: -6 }}
+                      onClick={() => navigate(`/departments?code=${academic.code.toLowerCase()}`)}
+                      className="group cursor-pointer border border-slate-200/60 hover:border-secondary-blue/30 rounded-3xl p-6 hover:shadow-xl transition-all duration-300 text-left bg-white relative overflow-hidden flex flex-col justify-between h-[280px]"
+                    >
+                      {/* Top Row: Icon and Code */}
+                      <div>
+                        <div className="flex justify-between items-center mb-6">
+                          <div className={`p-3.5 rounded-2xl ${academic.lightColor} bg-opacity-25 transition-transform group-hover:scale-110 duration-300`}>
+                            <Icon className="h-5 w-5 shrink-0" />
+                          </div>
+                          <span className="text-[10px] font-bold px-2.5 py-1 bg-slate-100 rounded-lg text-slate-500 uppercase font-mono tracking-wider">
+                            {academic.code}
+                          </span>
+                        </div>
+                        {/* Title and Short Description */}
+                        <h3 className="text-base font-bold text-primary-navy mb-2 font-display group-hover:text-secondary-blue transition-colors line-clamp-2 leading-snug">
+                          {academic.dept}
+                        </h3>
+                        <p className="text-xs text-slate-400 leading-relaxed font-sans line-clamp-3">
+                          {academic.desc}
+                        </p>
+                      </div>
+
+                      {/* Bottom Link indicator */}
+                      <div className="pt-4 border-t border-slate-50 flex items-center justify-between text-secondary-blue">
+                        <span className="text-[11px] font-bold group-hover:underline">Explore Department</span>
+                        <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1 duration-200" />
+                      </div>
+                    </motion.div>
+                  );
+                })}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* View All Departments CTA */}
+          <div className="text-center">
+            <button 
+              onClick={() => navigate('/departments')}
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full font-bold text-sm text-white bg-gradient-to-r from-secondary-blue to-primary-navy hover:from-blue-600 hover:to-indigo-800 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
+            >
+              <span>View All 10 Departments</span>
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </section>

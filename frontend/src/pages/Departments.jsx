@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
@@ -296,8 +297,24 @@ const departmentsData = [
 ];
 
 const Departments = () => {
+  const [searchParams] = useSearchParams();
   const [expandedCode, setExpandedCode] = useState(null);
   const [activeTab, setActiveTab] = useState({});
+
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (code) {
+      const formattedCode = code.toUpperCase();
+      setExpandedCode(formattedCode);
+      setActiveTab(prev => ({ ...prev, [formattedCode]: 'details' }));
+      setTimeout(() => {
+        const element = document.getElementById(`dept-${code.toLowerCase()}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    }
+  }, [searchParams]);
 
   const toggleExpand = (code) => {
     setExpandedCode(prev => prev === code ? null : code);
@@ -355,6 +372,7 @@ const Departments = () => {
             return (
               <motion.div
                 key={dept.code}
+                id={`dept-${dept.code.toLowerCase()}`}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
