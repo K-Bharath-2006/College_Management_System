@@ -24,7 +24,7 @@ import {
   Bot
 } from 'lucide-react';
 import SectionTitle from '../components/SectionTitle';
-import homeImg from '../assets/home.png';
+import homeImg from '../assets/home.jpg';
 
 const Home = () => {
   const navigate = useNavigate();
