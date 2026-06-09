@@ -171,15 +171,13 @@ const Home = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8 }}
-                className="relative w-full max-w-lg aspect-square lg:max-w-none lg:h-[480px] rounded-3xl overflow-hidden border border-slate-200/50 shadow-2xl bg-white p-2"
+                className="relative w-full max-w-xl aspect-[1.6] rounded-3xl overflow-hidden border border-slate-200/50 shadow-2xl bg-white p-2"
               >
                 <img
                   src={homeImg}
-                  alt="Student facing university path and city skyline"
+                  alt="Vertex Journey Pathway"
                   className="w-full h-full object-cover rounded-2xl"
                 />
-                {/* Backdrop modern glass panels */}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-navy/40 via-transparent to-transparent pointer-events-none rounded-2xl" />
               </motion.div>
 
               {/* Floating milestone tags */}
