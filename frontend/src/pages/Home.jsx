@@ -127,7 +127,7 @@ const Home = () => {
                   <Star className="h-4 w-4 text-secondary-blue fill-secondary-blue" />
                   <span className="text-xs font-semibold text-secondary-blue tracking-wide uppercase">Ranked #1 Engineering Institute</span>
                 </div>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-primary-navy leading-tight font-display">
+                <h1 className="text-3xl sm:text-4xl lg:text-[52px] font-extrabold tracking-tight text-primary-navy leading-tight font-display">
                   Shape Your Future at <br />
                   <span className="bg-gradient-to-r from-secondary-blue to-blue-700 bg-clip-text text-transparent">
                     Vertex College
@@ -178,6 +178,8 @@ const Home = () => {
                   alt="Vertex Journey Pathway"
                   className="w-full h-full object-cover rounded-2xl"
                 />
+                {/* Backdrop modern glass panels */}
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-navy/20 via-transparent to-transparent pointer-events-none rounded-2xl" />
               </motion.div>
 
               {/* Floating milestone tags */}
