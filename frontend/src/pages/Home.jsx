@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Award, 
   BookOpen, 
@@ -19,6 +20,7 @@ import SectionTitle from '../components/SectionTitle';
 import homeImg from '../assets/home.png';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [inquiryForm, setInquiryForm] = useState({
     name: '',
@@ -135,10 +137,10 @@ const Home = () => {
                 className="flex flex-wrap gap-4"
               >
                 <button 
-                  onClick={() => document.getElementById('academics').scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => navigate('/campus-tour')}
                   className="px-8 py-3.5 rounded-full font-semibold text-primary-navy border border-slate-300 hover:border-secondary-blue bg-white hover:bg-slate-50 shadow-sm transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
                 >
-                  Explore Campus
+                  Campus Tour
                 </button>
                 <button 
                   onClick={() => document.getElementById('admissions').scrollIntoView({ behavior: 'smooth' })}
