@@ -12,13 +12,13 @@ const facilities = [
   {
     name: 'Football Ground',
     desc: 'FIFA-spec synthetic turf football field with corner flags, goal posts, team dugouts, and drainage for year-round play.',
-    image: 'https://images.unsplash.com/photo-1459865264687-595d652de67e?q=80&w=700&auto=format&fit=crop',
+    image: 'https://imgs.search.brave.com/oIpjOGA_9VH8BbeYKhPk_kWAz3XmyfgccWqRgKWnV2w/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9jZG4u/cHJvZC53ZWJzaXRl/LWZpbGVzLmNvbS81/Y2E1ZmU2ODdlMzRi/ZTA5OTJkZjFmYmUv/NjFiNTkxMWM5ZDM3/ZDA0NDlhY2VlMzkw/X3NvY2Nlci1iYWxs/LW9uLWdyYXNzLWlu/LWNvcm5lci1raWNr/LXBvc2l0aW9uLW9u/LXNvLTIwMjEtMDgt/MjktMTAtNDYtNTQt/dXRjLW1pbi5qcGc?q=80&w=700&auto=format&fit=crop',
     color: 'from-lime-600 to-green-600'
   },
   {
     name: 'Basketball Court',
     desc: 'Two NBA-specification wooden-floor indoor basketball courts with electronic scoreboards and bleacher seating for 500 spectators.',
-    image: 'https://images.unsplash.com/photo-1546519638405-a9b2de32ba1e?q=80&w=700&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=700&auto=format&fit=crop',
     color: 'from-orange-600 to-amber-600'
   },
   {
@@ -30,7 +30,7 @@ const facilities = [
   {
     name: 'Indoor Stadium',
     desc: 'Multipurpose 2,000-seat indoor stadium hosting badminton, table tennis, chess competitions, and inter-college tournaments.',
-    image: 'https://images.unsplash.com/photo-1585792180666-f7347c490ee2?q=80&w=700&auto=format&fit=crop',
+    image: 'https://imgs.search.brave.com/Lgq6yzeHJOa4icGxo4oxHmPoIcDSuXaf-a8GByUWT_Q/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly81Lmlt/aW1nLmNvbS9kYXRh/NS9DUy9IWi9BWi9T/RUxMRVItNzQzNzk2/OC9pbmRvb3JlLXN0/YWRpdW0tYnVpbGRp/bmctMTAwMHgxMDAw/LmpwZWc?q=80&w=700&auto=format&fit=crop',
     color: 'from-indigo-600 to-violet-700'
   },
   {
@@ -42,7 +42,7 @@ const facilities = [
   {
     name: 'Athletics Track',
     desc: '400m IAAF-certified synthetic running track with long jump pit, shot put, discus, and javelin fields for national-level training.',
-    image: 'https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?q=80&w=700&auto=format&fit=crop',
+    image: 'https://imgs.search.brave.com/XN6l2GVkBSc8cFQa3VRZPm4MdEie4busLWJ6P0IkBPw/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly81Lmlt/aW1nLmNvbS9kYXRh/NS9SSy9YTC9NWS0z/OTQ0MzYwNS9zeW50/aGV0aWMtYXRobGV0/aWMtdHJhY2stMTAw/MHgxMDAwLmpwZw?q=80&w=700&auto=format&fit=crop',
     color: 'from-red-600 to-rose-600'
   },
 ];
