@@ -160,18 +160,18 @@ const CareerDevelopment = () => {
   ];
 
   const topRecruiters = [
-    { name: 'Google', sector: 'Tech Giant', gradient: 'from-blue-500 to-blue-700' },
-    { name: 'Amazon', sector: 'E-Commerce & Cloud', gradient: 'from-orange-500 to-amber-600' },
-    { name: 'Zoho Corp', sector: 'SaaS Enterprise', gradient: 'from-red-500 to-rose-600' },
-    { name: 'Infosys', sector: 'IT Services', gradient: 'from-indigo-600 to-blue-700' },
-    { name: 'TCS Digital', sector: 'Consulting & IT', gradient: 'from-cyan-600 to-blue-600' },
-    { name: 'Wipro', sector: 'IT Services', gradient: 'from-slate-600 to-slate-800' },
-    { name: 'Cognizant', sector: 'Digital Services', gradient: 'from-blue-700 to-indigo-700' },
-    { name: 'HCL Tech', sector: 'IT Solutions', gradient: 'from-emerald-600 to-teal-700' },
-    { name: 'Accenture', sector: 'Consulting', gradient: 'from-purple-600 to-indigo-600' },
-    { name: 'Capgemini', sector: 'IT & Consulting', gradient: 'from-blue-400 to-sky-600' },
-    { name: 'L&T Infotech', sector: 'Engineering IT', gradient: 'from-green-700 to-emerald-700' },
-    { name: 'NTT Data', sector: 'IT Services', gradient: 'from-rose-700 to-red-700' }
+    { name: 'Google', sector: 'Tech Giant', gradient: 'from-blue-500 to-blue-700', logo: 'https://logos.hunter.io/google.com' },
+    { name: 'Amazon', sector: 'E-Commerce & Cloud', gradient: 'from-orange-500 to-amber-600', logo: 'https://logos.hunter.io/amazon.com' },
+    { name: 'Zoho Corp', sector: 'SaaS Enterprise', gradient: 'from-red-500 to-rose-600', logo: 'https://logos.hunter.io/zoho.com' },
+    { name: 'Infosys', sector: 'IT Services', gradient: 'from-indigo-600 to-blue-700', logo: 'https://logos.hunter.io/infosys.com' },
+    { name: 'TCS Digital', sector: 'Consulting & IT', gradient: 'from-cyan-600 to-blue-600', logo: 'https://logos.hunter.io/tcs.com' },
+    { name: 'Wipro', sector: 'IT Services', gradient: 'from-slate-600 to-slate-800', logo: 'https://logos.hunter.io/wipro.com' },
+    { name: 'Cognizant', sector: 'Digital Services', gradient: 'from-blue-700 to-indigo-700', logo: 'https://logos.hunter.io/cognizant.com' },
+    { name: 'HCL Tech', sector: 'IT Solutions', gradient: 'from-emerald-600 to-teal-700', logo: 'https://logos.hunter.io/hcltech.com' },
+    { name: 'Accenture', sector: 'Consulting', gradient: 'from-purple-600 to-indigo-600', logo: 'https://logos.hunter.io/accenture.com' },
+    { name: 'Capgemini', sector: 'IT & Consulting', gradient: 'from-blue-400 to-sky-600', logo: 'https://logos.hunter.io/capgemini.com' },
+    { name: 'L&T Infotech', sector: 'Engineering IT', gradient: 'from-green-700 to-emerald-700', logo: 'https://logos.hunter.io/ltimindtree.com' },
+    { name: 'NTT Data', sector: 'IT Services', gradient: 'from-rose-700 to-red-700', logo: 'https://logos.hunter.io/nttdata.com' }
   ];
 
   const stats = [
@@ -421,8 +421,22 @@ const CareerDevelopment = () => {
                 transition={{ duration: 0.4, delay: index * 0.05 }}
                 className="group bg-white border border-slate-200 rounded-2xl p-5 text-center hover:shadow-lg hover:border-secondary-blue/30 transition-all duration-300 cursor-pointer"
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${company.gradient} text-white font-extrabold text-base flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                  {company.name.substring(0, 2).toUpperCase()}
+                <div className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden mx-auto group-hover:scale-110 transition-all duration-300">
+                  <img 
+                    src={company.logo} 
+                    alt={company.name} 
+                    className="w-full h-full object-contain p-1 bg-white border border-slate-100 rounded-xl"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      const fallback = e.target.parentNode.querySelector('.logo-fallback');
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div 
+                    className={`logo-fallback absolute inset-0 hidden rounded-xl bg-gradient-to-br ${company.gradient} text-white font-extrabold text-sm items-center justify-center uppercase`}
+                  >
+                    {company.name.substring(0, 2)}
+                  </div>
                 </div>
                 <p className="text-sm font-bold text-primary-navy group-hover:text-secondary-blue transition-colors font-display leading-tight">{company.name}</p>
                 <p className="text-[10px] text-slate-400 mt-0.5 uppercase tracking-wide font-medium">{company.sector}</p>

@@ -145,7 +145,7 @@ const departmentsData = [
     labsCount: 6,
     intake: 130,
     accreditation: 'NBA Accredited',
-    image: 'https://images.unsplash.com/photo-1509390836518-c6ecce2bc575?q=80&w=800&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=800&auto=format&fit=crop',
     desc: 'Shaping smart power grids, renewable energy systems, industrial automation controllers, drive circuit design, and high-voltage electrical system engineering.',
     specializations: ['Power Systems & Smart Grid', 'Renewable Energy Engineering', 'Industrial Drives & Automation', 'Power Electronics'],
     keySubjects: ['Electric Machines', 'Power Systems Analysis', 'Control Systems', 'Power Electronics', 'Renewable Energy'],

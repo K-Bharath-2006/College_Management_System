@@ -26,10 +26,8 @@ const ERPLogin = () => {
   const [view, setView] = useState('login'); // 'login' | 'forgot' | 'reset-success'
 
   // Form Fields
-  const [role, setRole] = useState('student'); // 'admin' | 'staff' | 'student'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   // Forgot Password Fields
@@ -319,22 +317,7 @@ const ERPLogin = () => {
                 )}
 
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
-                  {/* Role Dropdown */}
-                  <div className="space-y-1.5">
-                    <label htmlFor="role" className="text-xs font-bold text-slate-700 tracking-wide uppercase">
-                      Select Portal Role
-                    </label>
-                    <select
-                      id="role"
-                      value={role}
-                      onChange={(e) => setRole(e.target.value)}
-                      className="block w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-sans bg-white focus:outline-none focus:border-secondary-blue focus:ring-4 focus:ring-blue-100/60 transition-all duration-300"
-                    >
-                      <option value="student">Student Dashboard</option>
-                      <option value="staff">Faculty / Staff Dashboard</option>
-                      <option value="admin">Administrator Dashboard</option>
-                    </select>
-                  </div>
+
 
                   {/* Email Input */}
                   <div className="space-y-1.5">
@@ -409,19 +392,6 @@ const ERPLogin = () => {
                     )}
                   </div>
 
-                  {/* Remember Me Box */}
-                  <div className="flex items-center space-x-2 pt-1">
-                    <input
-                      id="remember-me"
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="h-5 w-5 rounded border-slate-300 text-secondary-blue focus:ring-secondary-blue accent-secondary-blue cursor-pointer"
-                    />
-                    <label htmlFor="remember-me" className="text-xs font-semibold text-slate-600 cursor-pointer select-none">
-                      Remember this device
-                    </label>
-                  </div>
 
                   {/* Submit Button */}
                   <div className="pt-2">
@@ -448,12 +418,6 @@ const ERPLogin = () => {
                     <ArrowLeft className="h-3.5 w-3.5" />
                     <span>Back to Homepage</span>
                   </Link>
-                </div>
-
-                {/* Secure notice info */}
-                <div className="pt-4 border-t border-slate-100 flex items-center space-x-2 text-[10px] text-slate-400">
-                  <ShieldCheck className="h-5 w-5 text-slate-400 shrink-0" />
-                  <span>Encrypted SSL session governed by Vertex administrative firewall protocols.</span>
                 </div>
 
               </motion.div>

@@ -1,4 +1,4 @@
-import { Menu, LogOut } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 const Topbar = ({ title, user, role, setIsMobileOpen, onLogout }) => {
   return (
@@ -38,15 +38,6 @@ const Topbar = ({ title, user, role, setIsMobileOpen, onLogout }) => {
             {user?.name ? user.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() : 'US'}
           </div>
         </div>
-
-        {/* Quick Logout (Desktop icon-only, since sidebar already has logout) */}
-        <button
-          onClick={onLogout}
-          className="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 cursor-pointer hidden md:block"
-          title="Logout of Session"
-        >
-          <LogOut className="h-5 w-5" />
-        </button>
       </div>
     </header>
   );

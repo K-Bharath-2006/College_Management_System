@@ -34,7 +34,7 @@ const Home = () => {
     name: '',
     email: '',
     phone: '',
-    program: 'Computer Science',
+    program: 'Computer Science & Engineering',
     message: ''
   });
 
@@ -43,7 +43,7 @@ const Home = () => {
     setFormSubmitted(true);
     setTimeout(() => {
       setFormSubmitted(false);
-      setInquiryForm({ name: '', email: '', phone: '', program: 'Computer Science', message: '' });
+      setInquiryForm({ name: '', email: '', phone: '', program: 'Computer Science & Engineering', message: '' });
     }, 4000);
   };
 
@@ -85,12 +85,18 @@ const Home = () => {
   ];
 
   const recruiters = [
-    { name: 'TechNova', desc: 'Software Solutions', logoColor: 'from-blue-600 to-indigo-600' },
-    { name: 'InnovaSoft', desc: 'Consulting & Tech', logoColor: 'from-cyan-500 to-blue-600' },
-    { name: 'NextGen Technologies', desc: 'Robotics & AI', logoColor: 'from-purple-600 to-indigo-500' },
-    { name: 'Future Labs', desc: 'R&D Pioneers', logoColor: 'from-emerald-500 to-teal-600' },
-    { name: 'Skyline Systems', desc: 'Cloud Architectures', logoColor: 'from-slate-600 to-slate-800' },
-    { name: 'Global Tech', desc: 'Enterprise Systems', logoColor: 'from-blue-700 to-cyan-600' }
+    { name: 'Google', desc: 'Tech Giant', logoColor: 'from-blue-500 to-blue-700', logo: 'https://logos.hunter.io/google.com' },
+    { name: 'Amazon', desc: 'E-Commerce & Cloud', logoColor: 'from-orange-500 to-amber-600', logo: 'https://logos.hunter.io/amazon.com' },
+    { name: 'Zoho Corp', desc: 'SaaS Enterprise', logoColor: 'from-red-500 to-rose-600', logo: 'https://logos.hunter.io/zoho.com' },
+    { name: 'Infosys', desc: 'IT Services', logoColor: 'from-indigo-600 to-blue-700', logo: 'https://logos.hunter.io/infosys.com' },
+    { name: 'TCS Digital', desc: 'Consulting & IT', logoColor: 'from-cyan-600 to-blue-600', logo: 'https://logos.hunter.io/tcs.com' },
+    { name: 'Wipro', desc: 'IT Services', logoColor: 'from-slate-600 to-slate-800', logo: 'https://logos.hunter.io/wipro.com' },
+    { name: 'Cognizant', desc: 'Digital Services', logoColor: 'from-blue-700 to-indigo-700', logo: 'https://logos.hunter.io/cognizant.com' },
+    { name: 'HCL Tech', desc: 'IT Solutions', logoColor: 'from-emerald-600 to-teal-700', logo: 'https://logos.hunter.io/hcltech.com' },
+    { name: 'Accenture', desc: 'Consulting', logoColor: 'from-purple-600 to-indigo-600', logo: 'https://logos.hunter.io/accenture.com' },
+    { name: 'Capgemini', desc: 'IT & Consulting', logoColor: 'from-blue-400 to-sky-600', logo: 'https://logos.hunter.io/capgemini.com' },
+    { name: 'L&T Infotech', desc: 'Engineering IT', logoColor: 'from-green-700 to-emerald-700', logo: 'https://logos.hunter.io/ltimindtree.com' },
+    { name: 'NTT Data', desc: 'IT Services', logoColor: 'from-rose-700 to-red-700', logo: 'https://logos.hunter.io/nttdata.com' }
   ];
 
   const academics = [
@@ -512,8 +518,22 @@ const Home = () => {
                 className="group relative bg-white border border-slate-200/60 p-5 rounded-2xl text-center shadow-sm hover:shadow-lg transition-all duration-300 hover:border-secondary-blue/30 cursor-pointer flex flex-col justify-center items-center h-32"
               >
                 {/* Logo design */}
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${recruiter.logoColor} mb-3 flex items-center justify-center text-white font-extrabold text-sm tracking-tighter opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300`}>
-                  {recruiter.name.substring(0, 2).toUpperCase()}
+                <div className="w-12 h-12 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden group-hover:scale-110 transition-all duration-300">
+                  <img 
+                    src={recruiter.logo} 
+                    alt={recruiter.name} 
+                    className="w-full h-full object-contain p-1 bg-white border border-slate-100 rounded-xl"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      const fallback = e.target.parentNode.querySelector('.logo-fallback');
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div 
+                    className={`logo-fallback absolute inset-0 hidden rounded-xl bg-gradient-to-br ${recruiter.logoColor} text-white font-extrabold text-xs items-center justify-center uppercase`}
+                  >
+                    {recruiter.name.substring(0, 2)}
+                  </div>
                 </div>
                 <span className="text-sm font-bold text-primary-navy font-display group-hover:text-secondary-blue transition-colors">
                   {recruiter.name}
@@ -626,9 +646,15 @@ const Home = () => {
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:border-secondary-blue transition-colors font-sans"
                     >
                       <option>Computer Science & Engineering</option>
-                      <option>Electronics & Communication</option>
+                      <option>Artificial Intelligence & Data Science</option>
+                      <option>Information Technology</option>
+                      <option>Electronics & Communication Engineering</option>
+                      <option>Electrical & Electronics Engineering</option>
+                      <option>Mechanical Engineering</option>
+                      <option>Civil Engineering</option>
+                      <option>Biomedical Engineering</option>
+                      <option>Cyber Security</option>
                       <option>Robotics & Automation</option>
-                      <option>Data Science & Analytics</option>
                     </select>
                   </div>
 
