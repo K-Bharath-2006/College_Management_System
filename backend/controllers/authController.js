@@ -85,3 +85,36 @@ export const forgotPassword = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Reset Password directly
+// @route   POST /api/auth/reset-password
+// @access  Public
+export const resetPassword = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Email address not found',
+      });
+    }
+
+    user.password = password; // mongoose pre-save hook hashes this
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password has been reset successfully.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};

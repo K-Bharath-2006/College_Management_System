@@ -32,6 +32,9 @@ const ERPLogin = () => {
 
   // Forgot Password Fields
   const [forgotEmail, setForgotEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
 
   // Validation Errors
   const [errors, setErrors] = useState({});
@@ -123,11 +126,47 @@ const ERPLogin = () => {
 
     try {
       await api.post('/auth/forgot-password', { email: forgotEmail });
-      setView('reset-success');
+      setNewPassword('');
+      setConfirmPassword('');
+      setView('reset-password');
     } catch (error) {
       console.error('Forgot password error:', error);
       const serverMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Email address not found';
       setErrors({ forgotEmail: serverMsg });
+    } finally {
+      setIsResetLoading(false);
+    }
+  };
+
+  const handleResetSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    if (!newPassword) {
+      newErrors.newPassword = 'New password is required';
+    } else if (newPassword.length < 6) {
+      newErrors.newPassword = 'Password must be at least 6 characters';
+    }
+
+    if (newPassword !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsResetLoading(true);
+    setErrors({});
+
+    try {
+      await api.post('/auth/reset-password', { email: forgotEmail, password: newPassword });
+      setView('reset-success');
+    } catch (error) {
+      console.error('Reset password error:', error);
+      const serverMsg = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Failed to reset password';
+      setErrors({ reset: serverMsg });
     } finally {
       setIsResetLoading(false);
     }
@@ -448,7 +487,7 @@ const ERPLogin = () => {
                     Reset Password
                   </h2>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Provide the official institutional email address connected to your profile. We will forward a secure credentials recovery link.
+                    Provide the official institutional email address connected to your profile to verify your account and set a new password.
                   </p>
                 </div>
 
@@ -490,10 +529,128 @@ const ERPLogin = () => {
                       {isResetLoading ? (
                         <>
                           <Loader2 className="h-5 w-5 animate-spin" />
-                          <span>Generating Safe Token...</span>
+                          <span>Verifying Account...</span>
                         </>
                       ) : (
-                        <span>Send Reset Link</span>
+                        <span>Verify Email</span>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {/* VIEW: RESET PASSWORD FORM */}
+            {view === 'reset-password' && (
+              <motion.div
+                key="reset-password-form"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4 }}
+                className="bg-white/80 backdrop-blur-md border border-slate-200/50 p-8 sm:p-10 rounded-3xl shadow-xl space-y-6 text-left"
+              >
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      setView('forgot');
+                      setErrors({});
+                    }}
+                    className="flex items-center space-x-1.5 text-xs font-bold text-slate-500 hover:text-secondary-blue transition-colors bg-transparent border-none cursor-pointer mb-2"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    <span>Back</span>
+                  </button>
+                  <h2 className="text-2xl font-extrabold text-primary-navy font-display">
+                    Set New Password
+                  </h2>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Set a new password for <span className="font-bold text-primary-navy">{forgotEmail}</span>.
+                  </p>
+                </div>
+
+                {errors.reset && (
+                  <div className="p-3 bg-red-50 border border-red-100 text-xs text-red-600 font-semibold rounded-xl animate-fade-in">
+                    {errors.reset}
+                  </div>
+                )}
+
+                <form onSubmit={handleResetSubmit} className="space-y-4">
+                  {/* New Password Input */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="new-password" className="text-xs font-bold text-slate-700 tracking-wide uppercase">
+                      New Password
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <Lock className="h-5 w-5" />
+                      </div>
+                      <input
+                        id="new-password"
+                        type={showResetPassword ? 'text' : 'password'}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Min 6 characters"
+                        className={`block w-full pl-11 pr-10 py-3 rounded-xl border text-sm font-sans bg-white focus:outline-none transition-all duration-300 ${
+                          errors.newPassword 
+                            ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-100' 
+                            : 'border-slate-200 focus:border-secondary-blue focus:ring-4 focus:ring-blue-100/60'
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowResetPassword(!showResetPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors bg-transparent border-none cursor-pointer"
+                      >
+                        {showResetPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
+                    {errors.newPassword && (
+                      <p className="text-xs text-red-500 font-semibold mt-1">{errors.newPassword}</p>
+                    )}
+                  </div>
+
+                  {/* Confirm Password Input */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="confirm-password" className="text-xs font-bold text-slate-700 tracking-wide uppercase">
+                      Confirm New Password
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <Lock className="h-5 w-5" />
+                      </div>
+                      <input
+                        id="confirm-password"
+                        type={showResetPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className={`block w-full pl-11 pr-10 py-3 rounded-xl border text-sm font-sans bg-white focus:outline-none transition-all duration-300 ${
+                          errors.confirmPassword 
+                            ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-100' 
+                            : 'border-slate-200 focus:border-secondary-blue focus:ring-4 focus:ring-blue-100/60'
+                        }`}
+                      />
+                    </div>
+                    {errors.confirmPassword && (
+                      <p className="text-xs text-red-500 font-semibold mt-1">{errors.confirmPassword}</p>
+                    )}
+                  </div>
+
+                  {/* Reset Button */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={isResetLoading}
+                      className="w-full flex justify-center items-center space-x-2 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-secondary-blue to-primary-navy hover:from-blue-600 hover:to-indigo-900 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-95 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {isResetLoading ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span>Resetting Password...</span>
+                        </>
+                      ) : (
+                        <span>Update Password</span>
                       )}
                     </button>
                   </div>
@@ -516,22 +673,24 @@ const ERPLogin = () => {
                     <CheckCircle className="h-10 w-10" />
                   </div>
                   <h3 className="text-xl font-extrabold text-primary-navy font-display">
-                    Secure Token Transmitted
+                    Password Reset Successful
                   </h3>
                   <p className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-100 p-3 rounded-xl font-semibold leading-relaxed max-w-sm">
-                    Password reset link has been sent to your email.
+                    Your password has been successfully updated in the database.
                   </p>
                 </div>
 
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-left space-y-1.5 text-xs text-slate-500 leading-normal">
-                  <span className="font-bold text-primary-navy block">Security Recommendation:</span>
-                  The transmitted token will expire in exactly **15 minutes**. Secure credentials reset can only be initiated once per hourly request.
+                  <span className="font-bold text-primary-navy block">Notice:</span>
+                  You can now log into your student, staff, or admin dashboard with your new credentials directly.
                 </div>
 
                 <button
                   onClick={() => {
                     setView('login');
                     setForgotEmail('');
+                    setNewPassword('');
+                    setConfirmPassword('');
                   }}
                   className="w-full py-3.5 rounded-xl text-sm font-bold text-white bg-primary-navy hover:bg-secondary-blue transition-colors cursor-pointer shadow-sm"
                 >
